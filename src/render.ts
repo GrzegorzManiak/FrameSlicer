@@ -38,9 +38,16 @@ const render_line_points = (line: Line): void => {
     points = [
         ...points,
         line.bounding_box.x() + line.bounding_box.width(),
+        line.cutting_depth + line.bounding_box.y(),
+
+        line.bounding_box.x() + line.bounding_box.width(),
         line.bounding_box.height() + line.bounding_box.y(),
+
         line.bounding_box.x(),
         line.bounding_box.height() + line.bounding_box.y(),
+
+        line.bounding_box.x(),
+        line.cutting_depth + line.bounding_box.y(),
     ]
 
     // -- Set the points

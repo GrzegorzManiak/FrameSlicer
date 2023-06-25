@@ -10,21 +10,22 @@ import { Anchor, Line } from './index.d';
  * @returns {void} Nothing
  */
 export const init_anchors = (line: Line, spread: number) => {
+    let [c_width, c_height] = get_client_size();
+
     // -- Some calculations
     const width = line.width,
-        height = line.cutting_depth,
-        layer = line.get_layer();
+        height = line.height;
 
     // -- Set the spread
     const _spread = width / spread;
     line.spread = _spread;
 
     // -- Calculate the center of the screen
-    const offset_left = (layer.width() - width) / 2,
-        offset_top = (layer.height() - height) / 2;
+    const offset_left = c_width / 2 - width / 2,
+        offset_top = c_height / 2 - height / 2;
 
     // -- Create the anchors
-    for (let i = 0; i < spread; i++) {
+    for (let i = 0; i < spread + 1; i++) {
         add_anchor(
             line,
             offset_left + _spread * i,
@@ -93,11 +94,11 @@ export const handle_listener = (line: Line, anchor: Anchor) => {
         const [width, height] = get_client_size(),
             { x, y } = anchor.handle.position();
 
-        const const_y = anchor.handle_y,
-            min_x = 0,
-            max_x = width;
-
-        const new_x = Math.max(min_x, Math.min(max_x, x));
+        const x_offset = (width / 2 - line.width / 2) - (anchor.handle.width() / 2),
+            const_y = anchor.handle_y,
+            min_x = x_offset,
+            max_x = x_offset + line.width,
+            new_x = Math.max(min_x, Math.min(max_x, x));
 
         // -- Set the handle position
         anchor.handle.position({

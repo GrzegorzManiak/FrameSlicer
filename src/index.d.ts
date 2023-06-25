@@ -16,6 +16,7 @@ export type Line = {
     anchor_handle: konva.Shape,
     handle_padding: number,
     spread: number,
+    bounding_box: konva.Rect,
     def_points: Array<number>,
     get_layer: () => konva.Layer,
     get_index: () => number,

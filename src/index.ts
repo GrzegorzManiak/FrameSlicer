@@ -3,6 +3,8 @@ import { get_client_size } from './aux';
 import { Line, Lines } from './index.d';
 import { anchor_listener, handle_listener, init_anchors } from './anchor';
 import { render_line } from './render';
+import { draw_grid } from './ruler';
+import { handle_controlls } from './view_controlls';
 
 
 // -- Stage
@@ -48,6 +50,20 @@ const create_line = (
     anchor_fill: string = '#47ffbc',
     anchor_guide: string = '#108258',
 ): Line => {
+    let [c_width, c_height] = get_client_size();
+
+    const bounding_box = new konva.Rect({
+        x: c_width / 2 - width / 2,
+        y: c_height / 2 - height / 2,
+        width, height,
+        fill: '#ffffff10',
+        stroke: '#ffffff15',
+        strokeWidth: 1,
+        draggable: false,
+    });
+
+    // -- Add the bounding box to the layer
+    _layer.add(bounding_box);
 
     // -- Create the line
     const _line = new konva.Line({
@@ -107,6 +123,7 @@ const create_line = (
         draggable: true,
     });
 
+
     // -- Return the line
     return {
         line: _line,
@@ -116,6 +133,7 @@ const create_line = (
         spread: 0,
         anchors: _anchors,
         depth_buffer: 20,
+        bounding_box,
         depth_line,
         cutting_depth,
         anchor_handle,
@@ -163,3 +181,6 @@ const main_line = create_line(1000, 90, 60);
 _lines.push(main_line);
 init_anchors(main_line, 10);
 render_line(main_line);
+draw_grid(main_line);
+
+handle_controlls(_stage);

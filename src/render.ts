@@ -1,3 +1,4 @@
+import { get_client_size } from './aux';
 import { Line } from './index.d';
 
 
@@ -33,34 +34,14 @@ const render_line_points = (line: Line): void => {
     });
 
 
-    // -- First and last Anchors, this is done to close
-    //    off the line at the correct height.
-    (() => {
-        // -- Last Anchor
-        const anchor = line.anchors[line.anchors.length - 1],
-        { x, y } = anchor.shape.position();
-
-        // -- Last Anchor
-        points = [
-            ...points,
-            x + anchor.shape.width() / 2,
-            anchor.min_y + line.height,
-        ];
-    })();
-
-    (() => {
-        // -- First Anchor
-        const anchor = line.anchors[0],
-        { x, y } = anchor.shape.position();
-
-        // -- First Anchor
-        points = [
-            ...points,
-            x + anchor.shape.width() / 2,
-            anchor.min_y + line.height,
-        ];
-    })();
-
+    // -- Close the line
+    points = [
+        ...points,
+        line.bounding_box.x() + line.bounding_box.width(),
+        line.bounding_box.height() + line.bounding_box.y(),
+        line.bounding_box.x(),
+        line.bounding_box.height() + line.bounding_box.y(),
+    ]
 
     // -- Set the points
     line.line.points(points);
@@ -129,6 +110,21 @@ const render_anchor_guides = (line: Line) => {
 
 
 
+const draw_bounding_rect = (line: Line) => {
+    const [c_width, c_height] = get_client_size();
+
+    line.bounding_box.size({
+        width: line.width,
+        height: line.height,
+    });
+
+    line.bounding_box.position({
+        x: (c_width / 2) - (line.width / 2),
+        y: (c_height / 2) - (line.height / 2),
+    });
+}
+
+
 /**
  * @name render_line
  * @description Renders everything to do with
@@ -141,5 +137,6 @@ export const render_line = (line: Line) => {
     render_line_points(line);
     render_depth_line(line);
     render_anchor_guides(line);
+    draw_bounding_rect(line);
     line.get_layer().draw();
 };

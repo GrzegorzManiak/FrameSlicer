@@ -49,16 +49,21 @@ export function handle_controlls(stage: konva.Stage) {
 
         let t1 = e.evt.touches[0],
             t2 = e.evt.touches[1];
+
+        // -- if there are no two touches, do nothing
         if (!t1 || !t2) return;
 
+        // -- If were dragging, stop dragging
+        if (stage.isDragging()) stage.stopDrag();
 
-        if (stage.isDragging())
-            stage.stopDrag();
-            
         
+        // -- Get the two touch points
         let p1 = { x: t1.clientX, y: t1.clientY },
             p2 = { x: t2.clientX, y: t2.clientY };
 
+
+        // -- If there is no last center, set it to the center of the two points
+        //    and return
         if (!last_center) return last_center = get_center(p1, p2);
     
 

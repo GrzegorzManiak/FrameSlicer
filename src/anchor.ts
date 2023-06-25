@@ -23,39 +23,54 @@ export const init_anchors = (line: Line, spread: number) => {
 
     // -- Create the anchors
     for (let i = 0; i < spread; i++) {
-
-        // -- Create the anchor
-        const anchor = line.add_anchor(),
-            a_size = anchor.shape.size();
-
-        // -- Center the anchor
-        anchor.shape.position({ 
-            x: offset_left + _spread * i - a_size.width / 2,
-            y: offset_top - a_size.height / 2,
-        });
+        add_anchor(
+            line,
+            offset_left + _spread * i,
+            offset_top,
+        )
+   }
+};
 
 
-        // -- Line
-        const x = _spread * i + offset_left;
-        const points = [
-            x, offset_top,
-            x, offset_top + height + line.handle_padding,
-        ];
 
-        // -- Set the bounds
-        anchor.max_y = offset_top + height;
-        anchor.min_y = offset_top;
+/**
+ * @name add_anchor
+ * @description Adds an anchor to the line
+ * @param {number} x The x position of the anchor
+ * @param {number} y The y position of the anchor
+ * @returns {Anchor} The anchor
+ */
+export const add_anchor = (line: Line, x?: number, y?: number) => {
+    // -- Create the anchor
+    const anchor = line.add_anchor(),
+    a_size = anchor.shape.size();
 
-        // -- Set the points
-        anchor.line.points(points);
+    // -- Center the anchor
+    anchor.shape.position({ 
+        x: x - a_size.width / 2,
+        y: y - a_size.height / 2,
+    });
 
 
-        // -- Handle
-        const handle = anchor.handle;
-        handle.position({
-            x: x - handle.width() / 2,
-            y: anchor.max_y - handle.height() / 2 + line.handle_padding,
-        });
-        anchor.handle_y = handle.position().y;
-    }
+    // -- Line
+    const points = [
+        x, y,
+        x, y + line.cutting_depth + line.handle_padding,
+    ];
+
+    // -- Set the bounds
+    anchor.max_y = y + line.cutting_depth;
+    anchor.min_y = y;
+
+    // -- Set the points
+    anchor.line.points(points);
+
+
+    // -- Handle
+    const handle = anchor.handle;
+    handle.position({
+        x: x - handle.width() / 2,
+        y: anchor.max_y - handle.height() / 2 + line.handle_padding,
+    });
+    anchor.handle_y = handle.position().y;
 };

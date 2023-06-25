@@ -10,7 +10,7 @@ import { Line } from './index.d';
 export const init_anchors = (line: Line, spread: number) => {
     // -- Some calculations
     const width = line.width,
-        height = line.height,
+        height = line.cutting_depth,
         layer = line.get_layer();
 
     // -- Set the spread
@@ -39,7 +39,7 @@ export const init_anchors = (line: Line, spread: number) => {
         const x = _spread * i + offset_left;
         const points = [
             x, offset_top,
-            x, offset_top + height,
+            x, offset_top + height + line.handle_padding,
         ];
 
         // -- Set the bounds
@@ -48,5 +48,14 @@ export const init_anchors = (line: Line, spread: number) => {
 
         // -- Set the points
         anchor.line.points(points);
+
+
+        // -- Handle
+        const handle = anchor.handle;
+        handle.position({
+            x: x - handle.width() / 2,
+            y: anchor.max_y - handle.height() / 2 + line.handle_padding,
+        });
+        anchor.handle_y = handle.position().y;
     }
 };

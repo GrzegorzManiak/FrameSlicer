@@ -115,8 +115,8 @@ const create_line = (
     const anchor_handle = new konva.Rect({
         x: 0,
         y: 0,
-        width: 15,
-        height: 5,
+        width: 10,
+        height: 25,
         stroke: anchor_stroke,
         strokeWidth: 1,
         fill: anchor_fill,
@@ -135,6 +135,7 @@ const create_line = (
         depth_buffer: 20,
         bounding_box,
         depth_line,
+        snap_range: 5,
         cutting_depth,
         anchor_handle,
         handle_padding: 10,
@@ -177,7 +178,7 @@ const create_line = (
 
 
 
-const main_line = create_line(1000, 90, 60);
+const main_line = create_line(500, 100, 60);
 _lines.push(main_line);
 init_anchors(main_line, 10);
 render_line(main_line);

@@ -1,6 +1,6 @@
 import konva, {} from 'konva';
 
-const scaleBy = 1.01;
+const scale_by = 1.015;
 
 const is_touch_enabled = () => ('ontouchstart' in window) || 
 (navigator.maxTouchPoints > 0) || (navigator.maxTouchPoints > 0);
@@ -22,20 +22,24 @@ export function handle_controlls(stage: konva.Stage) {
 
     const zoom_stage = (event) => {
         event.evt.preventDefault();
+        const old_scale = stage.scaleX();
 
-        const oldScale = stage.scaleX();
-        const { x: pointerX, y: pointerY } = stage.getPointerPosition();
-        const mousePointTo = {
-            x: (pointerX - stage.x()) / oldScale,
-            y: (pointerY - stage.y()) / oldScale,
+        const { 
+            x: pointerX, 
+            y: pointerY 
+        } = stage.getPointerPosition();
+
+        const mouse_point_to = {
+            x: (pointerX - stage.x()) / old_scale,
+            y: (pointerY - stage.y()) / old_scale,
         };
 
-        const newScale = event.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-        stage.scale({ x: newScale, y: newScale });
+        const new_scale = event.evt.deltaY > 0 ? old_scale * scale_by : old_scale / scale_by;
+        stage.scale({ x: new_scale, y: new_scale });
 
         const newPos = {
-            x: pointerX - mousePointTo.x * newScale,
-            y: pointerY - mousePointTo.y * newScale,
+            x: pointerX - mouse_point_to.x * new_scale,
+            y: pointerY - mouse_point_to.y * new_scale,
         }
 
         stage.position(newPos);

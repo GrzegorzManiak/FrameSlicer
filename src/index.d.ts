@@ -18,6 +18,7 @@ export type Line = {
     spread: number,
     bounding_box: konva.Rect,
     def_points: Array<number>,
+    snap_range: number,
     get_layer: () => konva.Layer,
     get_index: () => number,
     add_anchor: (x: number | void, y: number | void) => Anchor,
@@ -33,3 +34,10 @@ export type Anchor = {
 }
 
 export type Lines = Array<Line>;
+
+export type Tool = {
+    name: string,
+    angle_of_attack: number,
+    width: number,
+    depth: number,
+}

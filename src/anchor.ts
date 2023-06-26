@@ -73,7 +73,7 @@ export const add_anchor = (line: Line, x?: number, y?: number) => {
     const handle = anchor.handle;
     handle.position({
         x: x - handle.width() / 2,
-        y: anchor.max_y - handle.height() / 2 + line.handle_padding,
+        y: y + line.cutting_depth + line.handle_padding,
     });
     anchor.handle_y = handle.position().y;
 };
@@ -128,9 +128,16 @@ export const handle_listener = (line: Line, anchor: Anchor) => {
  * @returns {void} Nothing
  */
 export const anchor_listener = (line: Line, anchor: Anchor) => {
-    anchor.shape.on('dragmove', () => {
+    let last_mouse_pos = { x: 0, y: 0 },
+        snapped = false,
+        snapped_at = 0;
+    
+    anchor.shape.on('dragmove', (e) => {
+        // -- Check if the user is holding 'ctrl'
+        const free_move = e.evt.ctrlKey;
+
         // -- Get the anchor position
-        const { x, y } = anchor.shape.position();
+        let { x, y } = anchor.shape.position();
 
         // -- Make sure that the anchor is within the line
         const max_y = anchor.max_y,
@@ -139,11 +146,58 @@ export const anchor_listener = (line: Line, anchor: Anchor) => {
         // -- Get the cnst X from the handle
         const handle_pos = anchor.handle.position(),
             handle_size = anchor.handle.size(),
-            const_x = handle_pos.x + handle_size.width / 2;
+            const_x = handle_pos.x + handle_size.width / 2,
+            const_y = anchor.handle_y;
 
         // -- Set the anchor position
         const width = anchor.shape.width(),
             height = anchor.shape.height();
+
+        // // -- Snap bounds
+        // if (!free_move) {
+        //     // -- Get the two anchors to the left and right
+        //     const anchors = line.anchors,
+        //         index = anchors.indexOf(anchor),
+
+        //         left_1_anchor = anchors[index - 1],
+        //         left_2_anchor = anchors[index - 2],
+
+        //         right_1_anchor = anchors[index + 1],
+        //         right_2_anchor = anchors[index + 2];
+
+
+        //     // -- Get all the positions
+        //     const snap_anchors = [left_2_anchor, left_1_anchor, right_1_anchor, right_2_anchor];
+
+        //     let closest_anchor: null | Anchor = null;
+        //     snap_anchors.forEach((anchor) => {
+        //         if (!anchor) return;
+        //         const anchor_pos = anchor.shape.position();
+        //         if (!closest_anchor) return closest_anchor = anchor;
+        //         if (
+        //             Math.abs(anchor_pos.y - const_y) < 
+        //             Math.abs(closest_anchor.shape.position().y - const_y)
+        //         ) closest_anchor = anchor;
+        //     });
+
+        //     console.log(closest_anchor);
+        //     if (closest_anchor && Math.abs(closest_anchor.shape.position().y - const_y) < line.snap_range) {
+
+        //         if (!snapped) {
+        //             snapped = true;
+        //             snapped_at = e.evt.clientY;
+        //             console.log('snapped init');
+        //         }
+
+        //         if (snapped && Math.abs(snapped_at - e.evt.clientY) < line.snap_range) {
+        //             y = closest_anchor.shape.position().y;
+        //             console.log('snapped');
+        //         }
+                
+        //         else snapped = false;
+        //     }
+  
+        // }   
 
         // -- Set the anchor position
         anchor.shape.position({
@@ -155,6 +209,7 @@ export const anchor_listener = (line: Line, anchor: Anchor) => {
         });
 
         // -- Render the line
+        last_mouse_pos = { x: e.evt.clientX, y: e.evt.clientY };
         render_line(line);
     });
 

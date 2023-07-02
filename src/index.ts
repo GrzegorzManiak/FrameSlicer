@@ -123,6 +123,20 @@ const create_line = (
         draggable: true,
     });
 
+    // -- Path
+    const _path = new konva.Path({
+        data: '',
+        stroke: line_stroke,
+        strokeWidth: 2,
+        lineCap: 'round',
+        lineJoin: 'round',
+        draggable: false,
+        fill: line_fill,
+        closed: false,
+    });
+
+    // -- Add the path to the layer
+    _layer.add(_path);
 
     // -- Return the line
     return {
@@ -136,7 +150,9 @@ const create_line = (
         bounding_box,
         depth_line,
         snap_range: 5,
+        path: _path,
         cutting_depth,
+        raw_path: '',
         anchor_handle,
         handle_padding: 10,
         def_points: _line.points(),

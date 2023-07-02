@@ -1,0 +1,27 @@
+$21=1 ; Enable hard limits
+$22=1 ; Enable homing cycle
+$20=0 ; Disable soft limits
+$H    ; Home all axis
+
+S0       ; Set spindle speed to 0
+G90      ; Set absolute coordinates
+G21      ; Set units to mm
+
+; Move 1cm in X, Y and Z
+G1 X-10 F500
+G1 Y-10 F500
+G1 Z-10 F500
+
+; Set current position to 0
+G92 X0.0 
+G92 Y0.0
+G92 Z0.0
+
+$20=1        ; Enable soft limits
+$130=330.000 ; Set max travel for X axis
+$131=330.000 ; Set max travel for Y axis
+$132=30.000  ; Set max travel for Z axis
+
+; CODE HERE
+
+M2 ; End program

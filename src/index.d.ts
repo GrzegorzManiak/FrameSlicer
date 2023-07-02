@@ -10,6 +10,7 @@ export type Line = {
     depth_line: konva.Line,
     depth_buffer: number,
     line: konva.Line,
+    path: konva.Path,
     points: Points,
     anchor: konva.Shape,
     anchors: Array<Anchor>,
@@ -19,6 +20,7 @@ export type Line = {
     bounding_box: konva.Rect,
     def_points: Array<number>,
     snap_range: number,
+    raw_path: string,
     get_layer: () => konva.Layer,
     get_index: () => number,
     add_anchor: (x: number | void, y: number | void) => Anchor,
@@ -40,4 +42,15 @@ export type Tool = {
     angle_of_attack: number,
     width: number,
     depth: number,
+}
+
+export type CnC = {
+    name: string,
+
+    // -- Cnc dimensions
+    width: number,
+    height: number,
+    depth: number,
+
+    material_center: Point,
 }

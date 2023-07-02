@@ -22,21 +22,22 @@ export const sort_anchors = (line: Line) => {
 
 
 const render_line_points = (line: Line): void => {
-    let points: Array<number> = [];
 
-    // -- Main lines
-    line.anchors.forEach((anchor) => {
-        const { x, y } = anchor.shape.position();
-        points.push(
-            x + anchor.shape.width() / 2,
-            y + anchor.shape.height() / 2,
-        );
+    // -- Svg path
+    let path = 'M ';
+
+    // -- Create the main line with bezier curves
+    line.anchors.forEach((anchor, index) => {
+
+        let { x, y } = anchor.shape.position();
+        x += anchor.shape.width() / 2;
+        y += anchor.shape.height() / 2;
+
+        path += `${x} ${y} `;
     });
 
-
     // -- Close the line
-    points = [
-        ...points,
+    const points = [
         line.bounding_box.x() + line.bounding_box.width(),
         line.cutting_depth + line.bounding_box.y(),
 
@@ -51,7 +52,17 @@ const render_line_points = (line: Line): void => {
     ]
 
     // -- Set the points
-    line.line.points(points);
+    points.forEach((point, index) => {
+        if (index % 2 === 0) path += `L ${point} `;
+        else path += `${point} `;
+    });
+
+    // -- Close the path
+    path += 'Z';
+    line.raw_path = path;
+
+    // -- Set the path
+    line.path.data(path);
 }
 
 

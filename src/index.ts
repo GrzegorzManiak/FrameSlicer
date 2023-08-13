@@ -5,6 +5,7 @@ import { anchor_listener, handle_listener, init_anchors } from './anchor';
 import { render_line } from './render';
 import { draw_grid } from './ruler';
 import { handle_controlls } from './view_controlls';
+import { download_gcode, points_to_gcode, step_points, turn_line_to_points } from './gcode';
 
 
 // -- Stage
@@ -201,3 +202,17 @@ render_line(main_line);
 draw_grid(main_line);
 
 handle_controlls(_stage);
+
+
+// -- Handle when user preses 'f' key
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'f') return;
+
+    console.log('Generating gcode...');
+    const points = turn_line_to_points(main_line),
+        stepped = step_points(main_line, points, 0.10),
+        gcode = points_to_gcode(main_line, stepped);
+
+    download_gcode(main_line, 'test', gcode);
+    console.log('Done!');
+});

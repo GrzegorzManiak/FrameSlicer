@@ -36,6 +36,8 @@ const render_line_points = (line: Line): void => {
         path += `${x} ${y} `;
     });
 
+    line.raw_path = path + 'Z';
+
     // -- Close the line
     const points = [
         line.bounding_box.x() + line.bounding_box.width(),
@@ -59,7 +61,6 @@ const render_line_points = (line: Line): void => {
 
     // -- Close the path
     path += 'Z';
-    line.raw_path = path;
 
     // -- Set the path
     line.path.data(path);

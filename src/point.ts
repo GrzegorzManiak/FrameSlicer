@@ -3,13 +3,50 @@ import konva from 'konva';
 export default class Point {
     private _x: number;
     private _y: number;
+    private _z: number;
 
-    constructor(x: number, y: number) {
+    private _comment: string = '';
+
+    constructor(x: number, y: number, z: number = 0) {
         this._x = x;
         this._y = y;
+        this._z = z;
+    }
+
+    
+
+    /**
+     * @name comment
+     * @description The comment for the point
+     * @returns {string} The comment for the point
+     */
+    get comment(): string {
+        return this._comment;
     }
 
 
+
+    /**
+     * @name comment
+     * @description Set the comment for the point
+     * @param {string} comment - The comment for the point
+     */
+    set comment(comment: string) {
+        this._comment = comment;
+    }
+
+
+
+    /**
+     * @name has_comment
+     * @description Check if the point has a comment
+     * @returns {boolean} True if the point has a comment, false otherwise
+     */
+    get has_comment(): boolean {
+        return this._comment.length > 0;
+    }
+
+    
 
     /**
      * @name x
@@ -31,6 +68,16 @@ export default class Point {
         return this._y;
     }
 
+
+
+    /**
+     * @name z
+     * @description The z coordinate of the point
+     * @returns {number} The z coordinate of the point
+     */
+    get z(): number {
+        return this._z;
+    }
 
 
     /**

@@ -1,5 +1,5 @@
 # FrameSlicer
-## A kerfing Art Frame CNC GCode Generator
+A kerfing Art Frame CNC GCode Generator
 
 ## Description
 

@@ -1,5 +1,3 @@
-import konva from 'konva';
-
 export default class Point {
     private _x: number;
     private _y: number;

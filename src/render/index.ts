@@ -1,15 +1,20 @@
-import { get_client_size } from './aux';
-import { Line } from './index.d';
+import { get_client_size } from '../aux';
+import { Line } from '../index.d';
+
 
 
 /**
  * @name sort_anchors
- * @description Sorts the anchors by x position
+ * Sorts the anchors by x position
  * used for rendering the line correctly
- * @param {Line} line The line
+ * 
+ * @param {Line} line - The line to sort
+ * 
  * @returns {void} Nothing
  */
-export const sort_anchors = (line: Line) => {
+export const sort_anchors = (
+    line: Line
+) => {
     line.anchors.sort((a, b) => {
         const a_pos = a.shape.position(),
             b_pos = b.shape.position();
@@ -17,11 +22,22 @@ export const sort_anchors = (line: Line) => {
         if (a_pos.x > b_pos.x) return 1;
         return 0;
     });
-}
+};
 
 
 
-const render_line_points = (line: Line): void => {
+/**
+ * @name render_line_points
+ * Renders the normal line points for the z 
+ * axis aka how deep the cut will be
+ * 
+ * @param {Line} line - The line to render to point for
+ * 
+ * @returns {void} Nothing
+ */
+const render_line_points = (
+    line: Line
+): void => {
 
     // -- Svg path
     let path = 'M ';
@@ -64,11 +80,23 @@ const render_line_points = (line: Line): void => {
 
     // -- Set the path
     line.path.data(path);
-}
+};
 
 
 
-const render_y_offset_line = (line: Line): void => {
+/**
+ * @name render_y_offset_line
+ * This renders the offset line thats used
+ * to indicate the side to side movement of 
+ * the router.
+ * 
+ * @param {Line} line - The line to render the offset line for
+ * 
+ * @returns {void} Nothing
+ */
+const render_y_offset_line = (
+    line: Line
+): void => {
     // -- Svg path
     let path = 'M ';
     if (line.anchors.length === 0) return;
@@ -85,11 +113,22 @@ const render_y_offset_line = (line: Line): void => {
 
     // -- Set the path
     line.path.data(path); 
-}
+};
 
 
 
-const render_depth_line = (line: Line) => {
+/**
+ * @name render_depth_line
+ * THis renders the Red line that indicates 
+ * the maximum depth of the cut.
+ * 
+ * @param {Line} line - The line to render the depth line for
+ * 
+ * @returns {void} Nothing
+ */
+const render_depth_line = (
+    line: Line
+) => {
     
     let points: Array<number> = [];
     line.anchors.forEach((anchor) => {
@@ -132,7 +171,18 @@ const render_depth_line = (line: Line) => {
 
 
 
-const render_anchor_guides = (line: Line) => {
+/**
+ * @name render_anchor_guides
+ * This renders the anchor guides / the tracks
+ * that the anchors move along
+ * 
+ * @param {Line} line - The line to render
+ * 
+ * @returns {void} Nothing
+ */
+const render_anchor_guides = (
+    line: Line
+) => {
     line.anchors.forEach((anchor) => {
         
         // -- Get the handle position
@@ -150,7 +200,18 @@ const render_anchor_guides = (line: Line) => {
 
 
 
-const draw_bounding_rect = (line: Line) => {
+/**
+ * @name draw_bounding_rect
+ * Draws the bounding rectangle that encloses
+ * the line
+ * 
+ * @param {Line} line - The line to draw the bounding
+ * 
+ * @returns {void} Nothing
+ */
+const draw_bounding_rect = (
+    line: Line
+) => {
     const [c_width, c_height] = get_client_size();
 
     line.bounding_box.size({
@@ -162,17 +223,23 @@ const draw_bounding_rect = (line: Line) => {
         x: (c_width / 2) - (line.width / 2),
         y: (c_height / 2) - (line.height / 2) - line.y_offset,
     });
-}
+};
+
 
 
 /**
  * @name render_line
- * @description Renders everything to do with
+ * Renders everything to do with
  * the line, including the anchors, the depth
  * line, anchor guides etc.
- * @param {Line} line The line to render
+ * 
+ * @param {Line} line - The line to render
+ * 
+ * @returns {void} Nothing
  */
-export const render_line = (line: Line) => {
+export const render_line = (
+    line: Line
+) => {
     sort_anchors(line);
     if (!line.y_line) render_line_points(line);
     else render_y_offset_line(line);

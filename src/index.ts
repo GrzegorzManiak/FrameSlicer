@@ -3,7 +3,7 @@ import { get_client_size } from './aux';
 import { Line, Lines } from './index.d';
 import { anchor_listener, handle_listener, init_anchors } from './anchor';
 import { render_line } from './render';
-import { draw_grid } from './ruler';
+import { draw_grid } from './render/ruler';
 import { handle_controlls } from './view_controlls';
 import { download_gcode, points_to_gcode, step_points, turn_line_to_points } from './gcode';
 

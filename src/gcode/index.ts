@@ -1,6 +1,5 @@
-import { Line } from './index.d';
-import Point from './point';
-import konva from 'konva';
+import { Line } from '../index.d';
+import Point from '../point';
 import SVGPathCommander from 'svg-path-commander';
 
 let offset_x = 0,

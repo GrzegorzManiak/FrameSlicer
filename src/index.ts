@@ -11,7 +11,7 @@ import Line from './line';
 // -- Stage
 let [width, height] = get_client_size();
 const _stage = new konva.Stage({
-    container: 'container',
+    container: 'canvas-container',
     width, height,
 });
 
@@ -82,4 +82,77 @@ document.addEventListener('keydown', (e) => {
 
     // download_gcode(x_line, 'test', gcode);
     // console.log('Done!');
+});
+
+
+// -- Zoom 
+const zoom_plus = document.querySelector('.zoom-in') as HTMLElement,
+    zoom_minus = document.querySelector('.zoom-out') as HTMLElement,
+    zoom_level = document.querySelector('#zoom-level') as HTMLInputElement;
+
+if (!zoom_plus || !zoom_minus || !zoom_level
+) throw new Error('Missing zoom elements');
+
+const set_zoom = (value: number) => {
+    // -- Clamp zoom value
+    if (value < min_zoom) value = min_zoom;
+    if (value > max_zoom) value = max_zoom;
+    
+    // -- Round to 2 decimals
+    value = Math.round(value * 100) / 100;
+    zoom_level.value = `${value}`;
+
+    const old_scale = _stage.scaleX();
+    const new_scale = value;
+
+    // -- Calculate the zoom origin (center of the stage)
+    const center_x = _stage.width() / 2;
+    const center_y = _stage.height() / 2;
+
+    // -- Apply new scale and position
+    _stage.scale({ x: new_scale, y: new_scale });
+    _stage.position({ 
+        x: center_x - (center_x - _stage.x()) * (new_scale / old_scale),
+        y: center_y - (center_y - _stage.y()) * (new_scale / old_scale),
+    });
+
+    _stage.batchDraw();
+
+}
+
+const change_ammount = 0.05;
+const min_zoom = 0.25;
+const max_zoom = 2;
+set_zoom(1);
+
+
+// -- Buttons
+zoom_plus.addEventListener('click', () => {
+    const current = parseFloat(zoom_level.value);
+    set_zoom(current + change_ammount);
+});
+
+zoom_minus.addEventListener('click', () => {
+    const current = parseFloat(zoom_level.value);
+    set_zoom(current - change_ammount);
+});
+
+zoom_level.addEventListener('change', () => {
+    const current = parseFloat(zoom_level.value);
+    set_zoom(current);
+});
+
+
+// -- Scroll
+_stage.on('wheel', (e) => {
+    // -- Get the zoom level
+    const current = parseFloat(_stage.scaleX().toFixed(2));
+
+    // -- Calculate the new zoom level
+    let new_zoom = current;
+    if (e.evt.deltaY < 0) new_zoom = Math.min(max_zoom, current + change_ammount);
+    else new_zoom = Math.max(min_zoom, current - change_ammount);
+
+    // -- Set the new zoom level
+    set_zoom(new_zoom);
 });

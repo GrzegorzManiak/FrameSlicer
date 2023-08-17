@@ -10,17 +10,44 @@
         <title>Body Painter</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="./index.css">
+
+        <link rel="stylesheet" href="./static/index.css">
+        <link rel="stylesheet" href="./static/canvas.css">
+
     </head>
     <body>
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <button id='reset'>Clear</button> 
-        <button id='drawline'>Draw line</button></p>
 
-        <div id="container"></div> 
+        <div id="container">
+            <div id="canvas-container">
+            </div>  
+
+            <div class='canvas-tools'>
+                <div class='zoom-indicator'>
+                    <p>zoom</p>
+                    <div class='smooth-shadow'>
+                        <!-- + -->
+                        <div class='zoom-in'>
+                            <i class="fas fa-plus"></i>
+                        </div>
+
+                        <!-- 0 -->
+                        <div class='zoom-level'>
+                            <input id='zoom-level' type='number' value='1'>
+                        </div>
+
+                        <!-- - -->
+                        <div class='zoom-out'>
+                            <i class="fas fa-minus"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
 
         <script src="./webpack_bundles/main.js" async defer></script>
+        <script src="https://kit.fontawesome.com/2cf3e83773.js" crossorigin="anonymous"></script>
     </body>
 </html>

@@ -1,0 +1,32 @@
+:root {
+    --background-color: #F3F3F4;
+
+    --box-color: #e9e9e950;
+    --int-box-color: #a1a1a130;
+
+    --input-color: #e9e9e930;
+    --accent-color: #5878918a;
+    --box-radius: 4px;
+
+
+    --ss-warning: #E3C567;
+    --ss-error: #FF6666;
+    --ss-success: #6FD08C;
+    --ss-info: #39A9DB;
+    
+
+    --font-color: #ffffff;
+    --greyed-out-font-color: #b3b3b3;
+    --font-color-inverted: #0F6BB0;
+    --muted-font-color: #b3b3b3;
+
+    --toast_background: #023A63;
+}
+
+body {
+    background-color: #161616;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+}

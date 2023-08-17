@@ -29,12 +29,18 @@ const grid_y = (
 
 
 
-export const draw_grid = (line: Line) => {
+export const draw_grid = (
+    line: Line,
+    render_x: boolean = true,
+    render_y: boolean = true,
+) => {
+
     // -- 10px is 1cm
     let grid_size = 10,
         padding = 20,
         color = '#ffffff35',
-        extra = 2;
+        extra = 1;
+
     
     // -- Get the layer
     const layer = line.get_layer();
@@ -48,8 +54,14 @@ export const draw_grid = (line: Line) => {
         x_lenght = x_lines * grid_size * 10,
         y_lenght = y_lines * grid_size * 10;
 
+
+
+
+
     // -- Draw the grid
-    for (let i = 0; i < x_lines; i++) {
+    if (render_x) for (
+        let i = 0; i < x_lines; i++
+    ) {
         const x = grid_x(
             start_x - padding, 
             start_y - (i * 10 * grid_size),
@@ -70,7 +82,11 @@ export const draw_grid = (line: Line) => {
         layer.add(x);
     }
 
-    for (let i = 0; i < y_lines; i++) {
+
+
+    if (render_y) for (
+        let i = 0; i < y_lines; i++
+    ) {
         const y = grid_y(
             start_x + (i * 10 * grid_size), 
             start_y + padding, 

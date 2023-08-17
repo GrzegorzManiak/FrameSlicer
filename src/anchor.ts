@@ -29,7 +29,7 @@ export const init_anchors = (line: Line, spread: number) => {
         add_anchor(
             line,
             offset_left + _spread * i,
-            offset_top,
+            offset_top - line.y_offset,
         )
    }
 };
@@ -49,9 +49,13 @@ export const add_anchor = (line: Line, x?: number, y?: number) => {
     a_size = anchor.shape.size();
 
     // -- Center the anchor
+    const anchor_y = line.y_line ? 
+        y - a_size.height / 2 + (line.cutting_depth / 2):
+        y - a_size.height / 2;
+
     anchor.shape.position({ 
         x: x - a_size.width / 2,
-        y: y - a_size.height / 2,
+        y: anchor_y
     });
 
 

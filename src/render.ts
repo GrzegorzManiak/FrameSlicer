@@ -31,7 +31,7 @@ const render_line_points = (line: Line): void => {
 
         let { x, y } = anchor.shape.position();
         x += anchor.shape.width() / 2;
-        y += anchor.shape.height() / 2;
+        y += (anchor.shape.height() / 2);
 
         path += `${x} ${y} `;
     });
@@ -64,6 +64,27 @@ const render_line_points = (line: Line): void => {
 
     // -- Set the path
     line.path.data(path);
+}
+
+
+
+const render_y_offset_line = (line: Line): void => {
+    // -- Svg path
+    let path = 'M ';
+    if (line.anchors.length === 0) return;
+
+    // -- Create the main line with bezier curves
+    line.anchors.forEach((anchor, index) => {
+
+        let { x, y } = anchor.shape.position();
+        x += anchor.shape.width() / 2;
+        y += (anchor.shape.height() / 2);
+
+        path += `${x} ${y} `;
+    });
+
+    // -- Set the path
+    line.path.data(path); 
 }
 
 
@@ -139,7 +160,7 @@ const draw_bounding_rect = (line: Line) => {
 
     line.bounding_box.position({
         x: (c_width / 2) - (line.width / 2),
-        y: (c_height / 2) - (line.height / 2),
+        y: (c_height / 2) - (line.height / 2) - line.y_offset,
     });
 }
 
@@ -153,8 +174,9 @@ const draw_bounding_rect = (line: Line) => {
  */
 export const render_line = (line: Line) => {
     sort_anchors(line);
-    render_line_points(line);
-    render_depth_line(line);
+    if (!line.y_line) render_line_points(line);
+    else render_y_offset_line(line);
+    if (!line.y_line) render_depth_line(line);
     render_anchor_guides(line);
     draw_bounding_rect(line);
     line.get_layer().draw();

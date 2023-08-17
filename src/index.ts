@@ -32,6 +32,9 @@ let _lines: Lines = [];
  * @param {number} width The width of the box
  * @param {number} height The height of the box
  * @param {number} cutting_depth The cutting depth of the tool
+ * @param {number} y_offset The y offset of the line
+ * @param {boolean} y_line If the line is a y line 
+ * 
  * @param {string} line_stroke The line stroke color
  * @param {string} line_fill The line fill color
  * @param {string} anchor_stroke The anchor stroke color
@@ -43,6 +46,8 @@ const create_line = (
     width: number, 
     height: number,
     cutting_depth: number,
+    y_offset: number = 0,
+    y_line: boolean = false,
 
     line_stroke: string = '#ebebeb',
     line_fill: string = '#ebebeb30',
@@ -50,6 +55,7 @@ const create_line = (
     anchor_stroke: string = '#4a4a4a',
     anchor_fill: string = '#47ffbc',
     anchor_guide: string = '#108258',
+
 ): Line => {
     let [c_width, c_height] = get_client_size();
 
@@ -75,7 +81,7 @@ const create_line = (
         lineJoin: 'round',
         draggable: false,
         fill: line_fill,
-        closed: true,
+        closed: y_line,
     });
 
     // -- Create the anchor
@@ -110,6 +116,8 @@ const create_line = (
         closed: false,
     });
 
+    if (y_line) depth_line.hide();
+
     // -- Add the depth line to the layer
     _layer.add(depth_line);
 
@@ -132,7 +140,7 @@ const create_line = (
         lineCap: 'round',
         lineJoin: 'round',
         draggable: false,
-        fill: line_fill,
+        fill: y_line ? 'transparent' : line_fill,
         closed: false,
     });
 
@@ -153,8 +161,10 @@ const create_line = (
         snap_range: 5,
         path: _path,
         cutting_depth,
+        y_line,
         raw_path: '',
         anchor_handle,
+        y_offset,
         handle_padding: 10,
         def_points: _line.points(),
         get_layer: () => _layer,
@@ -194,14 +204,38 @@ const create_line = (
 }
 
 
+const line_width = 500;
+const line_height = 100;
+const line_depth = 60;
+const line_gap = 150 + line_height;
 
-const main_line = create_line(500, 100, 60);
-_lines.push(main_line);
-init_anchors(main_line, 10);
-render_line(main_line);
-draw_grid(main_line);
 
+const x_line = create_line(
+    line_width, 
+    line_height, 
+    line_depth,
+    0,
+    false
+);
+_lines.push(x_line);
+init_anchors(x_line, 10);
+render_line(x_line);
 handle_controlls(_stage);
+draw_grid(x_line, true, true);
+
+
+const y_line = create_line(
+    line_width, 
+    line_height, 
+    line_height,
+    line_gap,
+    true
+);
+_lines.push(y_line);
+init_anchors(y_line, 10);
+render_line(y_line);
+handle_controlls(_stage);
+draw_grid(y_line, true, false);
 
 
 // -- Handle when user preses 'f' key
@@ -209,10 +243,10 @@ document.addEventListener('keydown', (e) => {
     if (e.key !== 'f') return;
 
     console.log('Generating gcode...');
-    const points = turn_line_to_points(main_line),
-        stepped = step_points(main_line, points, 0.10),
-        gcode = points_to_gcode(main_line, stepped);
+    const points = turn_line_to_points(x_line),
+        stepped = step_points(x_line, points, 0.10),
+        gcode = points_to_gcode(x_line, stepped);
 
-    download_gcode(main_line, 'test', gcode);
+    download_gcode(x_line, 'test', gcode);
     console.log('Done!');
 });

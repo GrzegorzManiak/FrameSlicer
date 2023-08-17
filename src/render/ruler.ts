@@ -1,5 +1,5 @@
 import konva, {} from 'konva';
-import { Line } from '../index.d';
+import Line from '../line';
 
 
 
@@ -77,11 +77,11 @@ export const draw_grid = (
 
     
     // -- Get the layer
-    const layer = line.get_layer();
+    const layer = line._layer
 
     // -- Get the starting point
-    const start_x = line.bounding_box.x(),
-        start_y = line.bounding_box.y() + line.bounding_box.height(),
+    const start_x = line._bounding_box.x(),
+        start_y = line._bounding_box.y() + line._bounding_box.height(),
         x_lines = (line.height / 100) + extra,
         y_lines = (line.width / 100) + extra,
         x_lenght = x_lines * grid_size * 10,

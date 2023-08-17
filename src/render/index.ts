@@ -1,28 +1,5 @@
 import { get_client_size } from '../aux';
-import { Line } from '../index.d';
-
-
-
-/**
- * @name sort_anchors
- * Sorts the anchors by x position
- * used for rendering the line correctly
- * 
- * @param {Line} line - The line to sort
- * 
- * @returns {void} Nothing
- */
-export const sort_anchors = (
-    line: Line
-) => {
-    line.anchors.sort((a, b) => {
-        const a_pos = a.shape.position(),
-            b_pos = b.shape.position();
-        if (a_pos.x < b_pos.x) return -1;
-        if (a_pos.x > b_pos.x) return 1;
-        return 0;
-    });
-};
+import Line from '../line';
 
 
 
@@ -52,21 +29,19 @@ const render_line_points = (
         path += `${x} ${y} `;
     });
 
-    line.raw_path = path + 'Z';
-
     // -- Close the line
     const points = [
-        line.bounding_box.x() + line.bounding_box.width(),
-        line.cutting_depth + line.bounding_box.y(),
+        line._bounding_box.x() + line._bounding_box.width(),
+        line.config.cutting_depth + line._bounding_box.y(),
 
-        line.bounding_box.x() + line.bounding_box.width(),
-        line.bounding_box.height() + line.bounding_box.y(),
+        line._bounding_box.x() + line._bounding_box.width(),
+        line._bounding_box.height() + line._bounding_box.y(),
 
-        line.bounding_box.x(),
-        line.bounding_box.height() + line.bounding_box.y(),
+        line._bounding_box.x(),
+        line._bounding_box.height() + line._bounding_box.y(),
 
-        line.bounding_box.x(),
-        line.cutting_depth + line.bounding_box.y(),
+        line._bounding_box.x(),
+        line.config.cutting_depth + line._bounding_box.y(),
     ]
 
     // -- Set the points
@@ -75,11 +50,9 @@ const render_line_points = (
         else path += `${point} `;
     });
 
-    // -- Close the path
-    path += 'Z';
 
     // -- Set the path
-    line.path.data(path);
+    line.set_path(path + 'Z');
 };
 
 
@@ -112,7 +85,7 @@ const render_y_offset_line = (
     });
 
     // -- Set the path
-    line.path.data(path); 
+    line.set_path(path);
 };
 
 
@@ -141,32 +114,32 @@ const render_depth_line = (
 
     // -- First and last Anchors, sets nice buffers
     //    on either side of the line.
-    (() => {
+    {
         const anchor = line.anchors[line.anchors.length - 1],
         { x, y } = anchor.shape.position();
 
         // -- Last Anchor
         points = [
             ...points,
-            (x + anchor.shape.width() / 2) + line.depth_buffer,
+            (x + anchor.shape.width() / 2) + line.config.depth_buffer,
             anchor.max_y,
         ];
-    })();
+    }
 
-    (() => {
+    {
         const anchor = line.anchors[0],
         { x, y } = anchor.shape.position();
 
         // -- First Anchor
         points = [
-            (x + anchor.shape.width() / 2) - line.depth_buffer,
+            (x + anchor.shape.width() / 2) - line.config.depth_buffer,
             anchor.max_y,
             ...points,
         ];
-    })();
+    };
 
     // -- Set the points
-    line.depth_line.points(points);
+    line._depth_line.points(points);
 };
 
 
@@ -192,8 +165,8 @@ const render_anchor_guides = (
 
         // -- Set the line position
         anchor.line.points([
-            x, anchor.min_y,
-            x, anchor.max_y + line.handle_padding,
+            x, anchor.min_y - line.config.handle_padding,
+            x, anchor.max_y + line.config.handle_padding,
         ]);
     });
 };
@@ -214,14 +187,14 @@ const draw_bounding_rect = (
 ) => {
     const [c_width, c_height] = get_client_size();
 
-    line.bounding_box.size({
+    line._bounding_box.size({
         width: line.width,
         height: line.height,
     });
 
-    line.bounding_box.position({
+    line._bounding_box.position({
         x: (c_width / 2) - (line.width / 2),
-        y: (c_height / 2) - (line.height / 2) - line.y_offset,
+        y: (c_height / 2) - (line.height / 2) - line.config.y_offset,
     });
 };
 
@@ -240,11 +213,11 @@ const draw_bounding_rect = (
 export const render_line = (
     line: Line
 ) => {
-    sort_anchors(line);
-    if (!line.y_line) render_line_points(line);
+    line.sort_anchors();
+    if (!line.config.is_y_line) render_line_points(line);
     else render_y_offset_line(line);
-    if (!line.y_line) render_depth_line(line);
+    if (!line.config.is_y_line) render_depth_line(line);
     render_anchor_guides(line);
     draw_bounding_rect(line);
-    line.get_layer().draw();
+    line._layer.batchDraw();
 };

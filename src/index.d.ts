@@ -35,6 +35,7 @@ export type Anchor = {
     max_y: number,
     min_y: number,
     handle_y: number,
+    handle_neg_y: number,
 }
 
 export type Lines = Array<Line>;
@@ -55,4 +56,57 @@ export type CnC = {
     depth: number,
 
     material_center: Point,
+}
+
+
+export interface LineConfiguration { 
+    colors: Colors;
+    size: {
+        width: number,
+        height: number,
+    };
+    cutting_depth: number;
+    is_y_line: boolean;
+    y_offset: number;
+    anchor_spread: number;
+    handle_padding: number;
+    depth_buffer: number;
+    achor_position: 'top' | 'bottom';
+}
+
+export interface Colors {
+    line: {
+        stroke: string,
+        fill: string,
+    };
+    
+    path: {
+        stroke: string,
+        fill: string,
+    };
+
+    anchor: {
+        stroke: string,
+        fill: string,
+    };
+
+    anchor_handle: {
+        stroke: string,
+        fill: string,
+    };
+
+    anchor_guide: {
+        stroke: string,
+        fill: string,
+    };
+
+    depth_line: {
+        stroke: string,
+        fill: string,
+    };
+
+    bounding_box: {
+        stroke: string,
+        fill: string,
+    };
 }

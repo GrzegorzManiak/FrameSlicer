@@ -1,0 +1,144 @@
+.side-bar {    
+    width: 100vw;
+    height: 100vh;
+
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: var(--margins);
+    z-index: 150!important;
+
+    pointer-events: none;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100vh;
+}
+
+.box { 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--box-color);
+    border-radius: var(--box-radius);
+    border: solid 1.5px #ffffff25;
+    gap: 1rem;
+    margin: var(--margins);
+}
+
+.box, .box * {
+    z-index: 200;
+    pointer-events: auto;
+}
+
+
+.interal-box {
+    background-color: var(--int-box-color);
+    padding: var(--int-box-padding);
+    margin: var(--margins);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    border-radius: 7px;
+}
+
+.header {
+    width: 100%;
+    text-align: left;
+    padding-bottom: 0.3rem;
+    border-bottom: solid var(--outline-width) #FFFFFF15;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.header > h1 {
+    font-size: 15px;
+    font-weight: 500;
+    color: #FFFFFF;
+    text-align: left;
+    margin: 0;
+    user-select: none;
+}
+
+
+.content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    overflow: visible;
+}
+
+.content > * {
+    width: 100%;
+}
+
+[sub-box-name='tools'] .content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+[sub-box-name='tools'] [tool] {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.25rem;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+[sub-box-name='tools'] [tool] * {
+    color: #FFFFFF;
+}
+
+[tool-selected] {
+    background-color: #FFFFFF15;
+}
+
+[sub-box-name='tools'] [tool]:hover {
+    background-color: #f3f3f325;
+}
+
+/*
+    Styles to add the little - on the pen tool
+    to indicate that its used to remove points
+*/
+[tool='pen-remove'] {
+    display: grid;
+    place-items: center;
+    grid-template: 1fr / 1fr;
+}
+
+[tool='pen-remove'] > * {
+    grid-row: 1;
+    grid-column: 1;
+    position: absolute;
+}
+
+[tool='pen-remove'] [pen] {
+    font-size: 0.8rem;
+    bottom: 0.45rem;
+    left: 19%;
+}
+
+[tool='pen-remove'] [min] {
+    font-size: 0.8rem;
+    top: 0.1rem;
+    right: 0.1rem;
+}

@@ -13,6 +13,7 @@
 
         <link rel="stylesheet" href="./static/index.css">
         <link rel="stylesheet" href="./static/canvas.css">
+        <link rel="stylesheet" href="./static/panels.css">
 
     </head>
     <body>
@@ -21,6 +22,63 @@
         <![endif]-->
 
         <div id="container">
+            <div class='side-bar left canvas-tools'>
+
+                <!--
+                    DRAWING BOX
+                -->
+                <div class='box' box-name='drawing'>
+
+                    <!-- Tools -->
+                    <div class='interal-box' sub-box-name='tools'>
+                        <div class='header'>
+                            <h1>Tools</h1>
+                        </div>
+
+                        <div class='content'>
+
+                            <!-- Select-->
+                            <div tool='select'>
+                                <i class="fa-solid fa-arrow-pointer"></i>
+                            </div>
+
+                            <!-- Move -->
+                            <div tool='move'>
+                                <i class="fa-solid fa-up-down-left-right"></i>
+                            </div>
+
+                            <!-- Pen -->
+                            <div tool='pen'>
+                                <i class="fa-sharp fa-solid fa-pen-nib"></i>
+                            </div>
+
+                            <!-- Pen Remove -->
+                            <div tool='pen-remove'>
+                                <i pen class="fa-sharp fa-solid fa-pen-nib"></i>
+                                <i min class="fa-solid fa-minus"></i>
+                            </div>
+
+                            <!-- Brush -->
+                            <div tool='brush'>
+                                <i class="fa-solid fa-paintbrush"></i>
+                            </div>
+
+                            <!-- Lasso -->
+                            <div tool='lasso'>
+                                <i class="fa-regular fa-comment"></i>
+                            </div>
+
+                            <!-- Brush Remove -->
+                            <div tool='eraser'>
+                                <i class="fa-solid fa-eraser"></i>
+                            </div>
+                            
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="canvas-container">
             </div>  
 

@@ -7,6 +7,9 @@ export default class Shortcuts {
     private _shortcuts: Array<Shortcut> = [];
     private _storage_key = 'shortcuts';
     private _shortcut_map: ShortcutMap = {};
+    private _actions: Array<{
+        [key: string]: () => void;
+    }> = [];
 
 
     // -- Private constructor to prevent multiple instances
@@ -171,6 +174,8 @@ export default class Shortcuts {
         this._keys_pressed = [];
         matching_shortcuts.forEach((shortcut) => {
             log('INFO', `Shortcut pressed: ${shortcut.id}`);
+            if (this._actions[shortcut.id] !== undefined) 
+                this._actions[shortcut.id]();
         });
     }
 
@@ -374,5 +379,23 @@ export default class Shortcuts {
 
         // -- Return the serialized shortcut
         return serialized;
+    }
+
+
+
+    /**
+     * @name assign_action
+     * Assigns an action to a shortcut
+     * 
+     * @param {string} id - The id of the shortcut to assign the action to
+     * @param {() => void} action - The action to assign
+     * 
+     * @returns {void}
+     */
+    public assign_action(
+        id: string,
+        action: () => void
+    ): void {
+        this._actions[id] = action;
     }
 }

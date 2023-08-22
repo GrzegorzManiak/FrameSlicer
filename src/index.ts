@@ -53,6 +53,8 @@ const config: LineConfiguration = {
 }
 
 
+// -- Load the shortcuts
+const si = Shortcuts.get_instance();
 
 const x_line = new Line(_layer, config);
 const y_line = new Line(_layer, {
@@ -113,15 +115,27 @@ set_zoom(1);
 
 
 // -- Buttons
+si.assign_action('view-zoom-in', () =>  {
+    const current = parseFloat(zoom_level.value);
+    set_zoom(current + change_ammount);
+});
+
 zoom_plus.addEventListener('click', () => {
     const current = parseFloat(zoom_level.value);
     set_zoom(current + change_ammount);
+});
+
+
+si.assign_action('view-zoom-out', () =>  {
+    const current = parseFloat(zoom_level.value);
+    set_zoom(current - change_ammount);
 });
 
 zoom_minus.addEventListener('click', () => {
     const current = parseFloat(zoom_level.value);
     set_zoom(current - change_ammount);
 });
+
 
 zoom_level.addEventListener('change', () => {
     const current = parseFloat(zoom_level.value);
@@ -142,9 +156,3 @@ _stage.on('wheel', (e) => {
     // -- Set the new zoom level
     set_zoom(new_zoom);
 });
-
-
-
-// -- Load the shortcuts
-const si = Shortcuts.get_instance();
-si.reset_shortcuts();

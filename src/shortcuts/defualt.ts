@@ -42,7 +42,7 @@ export default [
         ctrl: true,
         shift: false,
         alt: false,
-        key: ['m', 'u'],
+        key: ['i'],
     },
 
 

@@ -84,52 +84,36 @@
             </div>  
 
             <div class='canvas-tools'>
+                
                 <!--
                     MENU BAR
                 -->
                 <div class='menu-bar'>
                     <div class='selector' menu-bar='file'>
-
                         <p>File</p>
-                        <!-- 
-                            Save: Save the current canvas to local storage
-                            Load: Shows a list of saved canvases
-                            New: Creates a new canvas
-
-                            List: Shows a list of saved canvases
-                            Export: Exports the current canvas in a file format
-                            Import: Imports a file into the current canvas
-                         -->
                         <div class='s-spacing'>
                             <div class='s-options'>
-
                                 <s-opt option='save'>
                                     <p class='title'>Save</p>
                                     <p class='shortcut'>Ctrl + S</p>
                                 </s-opt>
-    
                                 <s-opt option='load'>
                                     <p class='title'>Load</p>
                                     <p class='shortcut'>Ctrl + L</p>
                                 </s-opt>
-    
                                 <s-opt option='new'>
                                     <p class='title'>New</p>
                                     <p class='shortcut'>Ctrl + N</p>
                                 </s-opt>
-
                                 <s-opt class='break'></s-opt>
-
                                 <s-opt option='list'>
                                     <p class='title'>List</p>
                                     <p class='shortcut'>Ctrl + J</p>
                                 </s-opt>
-
                                 <s-opt option='export'>
                                     <p class='title'>Export</p>
                                     <p class='shortcut'>Ctrl + E</p>
                                 </s-opt>
-
                                 <s-opt option='import'>
                                     <p class='title'>Import</p>
                                     <p class='shortcut'>Ctrl + I</p>
@@ -138,33 +122,63 @@
                         </div>
                     </div>
 
-
-                    <div class='selector' menu-bar='pattern'>
-
-                        <p>Pattern</p>
-                        <!-- 
-                            Load: Loads a pattern into the current canvas
-                            New: Creates a new pattern
-                            List: Shows a list of saved patterns
-                        -->
+                    <div class='selector' menu-bar='view'>
+                        <p>View</p>
                         <div class='s-spacing'>
                             <div class='s-options'>
-    
+                                <s-opt option='zoom-in'>
+                                    <p class='title'>Zoom In</p>
+                                    <p class='shortcut'>Ctrl + +</p>
+                                </s-opt>
+                                <s-opt option='zoom-out'>
+                                    <p class='title'>Zoom Out</p>
+                                    <p class='shortcut'>Ctrl + -</p>
+                                </s-opt>
+                                <s-opt option='fullscreen'>
+                                    <p class='title'>Fullscreen</p>
+                                    <p class='shortcut'>F11</p>
+                                </s-opt>
+                                <s-opt class='break'></s-opt>
+                                <s-opt option='theme'>
+                                    <p class='title'>Theme</p>
+                                    <p class='shortcut'>Ctrl + T</p>
+                                </s-opt>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='selector' menu-bar='pattern'>
+                        <p>Pattern</p>
+                        <div class='s-spacing'>
+                            <div class='s-options'>
                                 <s-opt option='load'>
                                     <p class='title'>Load</p>
                                     <p class='shortcut'>Ctrl + P + L</p>
                                 </s-opt>
-    
                                 <s-opt option='new'>
                                     <p class='title'>New</p>
                                     <p class='shortcut'>Ctrl + P + N</p>
                                 </s-opt>
-
                                 <s-opt class='break'></s-opt>
-
                                 <s-opt option='list'>
                                     <p class='title'>List</p>
                                     <p class='shortcut'>Ctrl + P + J</p>
+                                </s-opt>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class='selector' menu-bar='help'>
+                        <p>Help</p>
+                        <div class='s-spacing'>
+                            <div class='s-options'>
+                                <s-opt option='about'>
+                                    <p class='title'>About</p>
+                                </s-opt>
+                                <s-opt option='help-center'>
+                                    <p class='title'>Help Center</p>
+                                    <p class='shortcut'>F1</p>
                                 </s-opt>
                             </div>
                         </div>

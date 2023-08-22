@@ -34,7 +34,8 @@
     justify-content: center;
     align-items: center;
     z-index: 100;
-    background-color: var(--input-color);
+    background-color: var(--box-color);
+    border: solid 1.5px #ffffff25;
     border-radius: var(--box-radius);
     padding: 0.25rem;
     gap: 0.25rem;
@@ -72,7 +73,6 @@ s-opt {
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    border-radius: var(--box-radius);
     transition: background-color 0.2s ease-in-out;
 }
 

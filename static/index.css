@@ -1,10 +1,10 @@
 :root {
     --background-color: #F3F3F4;
 
-    --box-color: #e9e9e950;
-    --int-box-color: #a1a1a130;
+    --box-color: #585858;
+    --int-box-color: #737373;
 
-    --input-color: #e9e9e930;
+    --input-color: #737373;
     --accent-color: #5878918a;
     --box-radius: 4px;
 
@@ -24,7 +24,7 @@
     --margins: 10px;
     --int-box-padding: 10px;
 
-    --menu-box-width: 200px;
+    --menu-box-width: 250px;
 }
 
 body {

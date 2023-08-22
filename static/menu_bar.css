@@ -1,0 +1,104 @@
+.selector {
+    border-radius: 5px;
+    border: none;
+    background-color: #ffffff00;
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+
+    transition: background-color 0.2s ease-in-out;
+}
+
+.selector:hover {
+    background-color: var(--input-color);
+}
+
+.selector:hover .s-spacing {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.selector > p {
+    margin: 0.25rem 0.5rem 0.25rem 0.5rem;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+}
+
+.menu-bar {
+    pointer-events: all;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    background-color: var(--input-color);
+    border-radius: var(--box-radius);
+    padding: 0.25rem;
+    gap: 0.25rem;
+}
+
+.s-spacing {
+    position: absolute;
+    padding-top: 0.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.s-options {
+    width: var(--menu-box-width);
+    background-color: var(--box-color);
+    border-radius: var(--box-radius);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    gap: 0.25rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+s-opt {
+    gap: 0.1rem;
+    height: 1.5rem;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-radius: var(--box-radius);
+    transition: background-color 0.2s ease-in-out;
+}
+
+s-opt .title {
+    font-weight: 500;
+    color: var(--font-color);
+    margin: 0;
+    user-select: none;
+    margin-left: 1.25rem;
+}
+
+s-opt .shortcut {
+    font-weight: 300;
+    color: var(--greyed-out-font-color);
+    margin: 0;
+    user-select: none;
+    margin-right: 1rem;
+}
+
+s-opt:hover {
+    background-color: var(--int-box-color);
+}
+
+s-opt.break {
+    height: 0.1rem;
+    background-color: var(--int-box-color);
+    border-radius: 0;
+    cursor: default;
+}

@@ -23,6 +23,8 @@
     --toast_background: #023A63;
     --margins: 10px;
     --int-box-padding: 10px;
+
+    --menu-box-width: 200px;
 }
 
 body {

@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="./static/index.css">
         <link rel="stylesheet" href="./static/canvas.css">
         <link rel="stylesheet" href="./static/panels.css">
+        <link rel="stylesheet" href="./static/menu_bar.css">
 
     </head>
     <body>
@@ -83,6 +84,98 @@
             </div>  
 
             <div class='canvas-tools'>
+                <!--
+                    MENU BAR
+                -->
+                <div class='menu-bar'>
+                    <div class='selector' menu-bar='file'>
+
+                        <p>File</p>
+                        <!-- 
+                            Save: Save the current canvas to local storage
+                            Load: Shows a list of saved canvases
+                            New: Creates a new canvas
+
+                            List: Shows a list of saved canvases
+                            Export: Exports the current canvas in a file format
+                            Import: Imports a file into the current canvas
+                         -->
+                        <div class='s-spacing'>
+                            <div class='s-options'>
+
+                                <s-opt option='save'>
+                                    <p class='title'>Save</p>
+                                    <p class='shortcut'>Ctrl + S</p>
+                                </s-opt>
+    
+                                <s-opt option='load'>
+                                    <p class='title'>Load</p>
+                                    <p class='shortcut'>Ctrl + L</p>
+                                </s-opt>
+    
+                                <s-opt option='new'>
+                                    <p class='title'>New</p>
+                                    <p class='shortcut'>Ctrl + N</p>
+                                </s-opt>
+
+                                <s-opt class='break'></s-opt>
+
+                                <s-opt option='list'>
+                                    <p class='title'>List</p>
+                                    <p class='shortcut'>Ctrl + J</p>
+                                </s-opt>
+
+                                <s-opt option='export'>
+                                    <p class='title'>Export</p>
+                                    <p class='shortcut'>Ctrl + E</p>
+                                </s-opt>
+
+                                <s-opt option='import'>
+                                    <p class='title'>Import</p>
+                                    <p class='shortcut'>Ctrl + I</p>
+                                </s-opt>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class='selector' menu-bar='pattern'>
+
+                        <p>Pattern</p>
+                        <!-- 
+                            Load: Loads a pattern into the current canvas
+                            New: Creates a new pattern
+                            List: Shows a list of saved patterns
+                        -->
+                        <div class='s-spacing'>
+                            <div class='s-options'>
+    
+                                <s-opt option='load'>
+                                    <p class='title'>Load</p>
+                                    <p class='shortcut'>Ctrl + P + L</p>
+                                </s-opt>
+    
+                                <s-opt option='new'>
+                                    <p class='title'>New</p>
+                                    <p class='shortcut'>Ctrl + P + N</p>
+                                </s-opt>
+
+                                <s-opt class='break'></s-opt>
+
+                                <s-opt option='list'>
+                                    <p class='title'>List</p>
+                                    <p class='shortcut'>Ctrl + P + J</p>
+                                </s-opt>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!--
+                    ZOOM INDICATOR
+                -->
                 <div class='zoom-indicator'>
                     <p>zoom</p>
                     <div class='smooth-shadow'>

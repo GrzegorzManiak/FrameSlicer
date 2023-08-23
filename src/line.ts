@@ -2,6 +2,7 @@ import konva, {} from 'konva';
 import { Anchor, Colors, LineConfiguration } from './index.d';
 import { render_line } from './render';
 import { get_client_size } from './aux';
+import { log } from './log';
 
 export default class Line {
     readonly _line: konva.Line;
@@ -463,6 +464,57 @@ export default class Line {
 
 
     /**
+     * @name parse_serialized_data
+     * Parses the serialized JSON data and handles errors
+     * 
+     * @param {string} serialized_data - The serialized JSON representation of the instance state
+     * 
+     * @returns {unknown} The parsed data
+     */
+    private static parse_serialized_data(
+        serialized_data: string
+    ): unknown {
+
+        // -- Try to parse the data
+        try {
+            log('INFO', 'Attempting to parse the serialized data');
+            const data = JSON.parse(serialized_data);
+            log('INFO', 'Parsed the serialized data');
+            return data;
+        } 
+        
+        // -- Catch the error
+        catch (e) {
+            log('ERROR', 'Unable to parse the serialized data');
+            throw new Error('Unable to parse the serialized data');
+        }
+    }
+
+
+
+    /**
+     * @name validate_serialized_data
+     * Validates the parsed data for correct format
+     * 
+     * @param {unknown} data - The parsed data to validate
+     * 
+     * @returns {boolean} Whether the data is valid or not
+     */
+    private static validate_serialized_data(
+        data: unknown
+    ): boolean {
+        return (
+            typeof data === 'object' &&
+            Object.keys(data).includes('config') &&
+            Object.keys(data).includes('anchors') &&
+            typeof data['config'] === 'object' &&
+            Array.isArray(data['anchors'])
+        );
+    }
+
+
+
+    /**
      * @name deserialize
      * Deserializes JSON into an instance of the class
      * @param {string} serialized_data - The serialized JSON representation of the instance state
@@ -470,17 +522,44 @@ export default class Line {
      * @returns {Line} The deserialized instance of the Line class
      */
     public static deserialize(serialized_data: string, layer: konva.Layer): Line {
-        const data = JSON.parse(serialized_data);
-        const deserialized_line = new Line(layer, data.config, false);
+        
+        // -- Parse the serialized data
+        const data = Line.parse_serialized_data(serialized_data);
+        if (!Line.validate_serialized_data(data)) {
+            log('ERROR', 'The serialized data is not valid');
+            throw new Error('The serialized data is not valid');
+        }
 
-        data.anchors.forEach(anchor_data => {
-            const anchor = deserialized_line.add_anchor(
-                anchor_data.x, 
-                anchor_data.y
-            );
-            
+        // -- Get the data
+        const config = data['config'] as LineConfiguration,
+            anchors = data['anchors'] as Array<{ x: number, y: number }>;
+
+        // -- Create the line
+        const deserialized_line = new Line(layer, config, false);
+
+        // -- Add the anchors
+        anchors.forEach((anchor_data: unknown) => {
+            // -- Check if the anchor data is valid
+            if (typeof anchor_data !== 'object') return;
+            if (
+                Object.keys(anchor_data).indexOf('x') === -1 ||
+                Object.keys(anchor_data).indexOf('y') === -1 ||
+                typeof anchor_data['x'] !== 'number' ||
+                typeof anchor_data['y'] !== 'number'
+            ) return;
+
+            // -- Clamp the values
+            const x = Math.max(0, Math.min(1, anchor_data['x']));
+            const y = Math.max(0, Math.min(1, anchor_data['y']));  
+
+            // -- Create the anchor
+            deserialized_line.add_anchor(x, y);
         });
 
+        // -- Sort the anchors
+        deserialized_line.sort_anchors();
+
+        // -- Return the deserialized line
         return deserialized_line;
     }
 

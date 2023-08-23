@@ -93,6 +93,13 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
     margin: 0;
 }
 
+[popup-section='content'] p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    user-select: none;
+}
+
 [popup-section='buttons'] {
     display: flex;
     flex-direction: row;
@@ -182,8 +189,13 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
     margin-bottom: 0.5rem;
+}
+
+[popup-input] .popup-input-dash {
+    margin: 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 [popup-input][has-desc='false'] .popup-input-dash,
@@ -242,6 +254,7 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
     font-weight: 400;
     text-align: left;
     width: 3rem;
+    align-self: center;
 }
 
 [popup-input] input[type="number"]:focus {
@@ -273,7 +286,7 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
     font-size: 13px;
     font-weight: 400;
     text-align: left;
-    align-self: baseline;
+    align-self: center;
 }
 
 [popup-input] input[type="checkbox"]:focus {
@@ -290,4 +303,9 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
 
 [popup-input][type='checkbox'] .popup-input-header {
     margin: 0;
+}
+
+popup [disabled] {
+    pointer-events: none;
+    opacity: 0.5;
 }

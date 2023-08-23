@@ -109,7 +109,7 @@ export default [
         key: [],
     },
     {
-        id: 'help-center',
+        id: 'about',
         ctrl: false,
         shift: false,
         alt: false,

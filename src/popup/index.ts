@@ -20,8 +20,15 @@ const create_button = (
     button.setAttribute('btn-text', cfg.text);
     button.innerText = cfg.text;
 
+    const lock_state = (state: boolean) => {
+        if (state) button.setAttribute('disabled', '');
+        else button.removeAttribute('disabled');
+    };
+
     button.addEventListener('click', () => {
-        cfg.callback();
+        if (!cfg.callback) return;
+        if (button.hasAttribute('disabled')) return;
+        cfg.callback((state: boolean) => lock_state(state))
     });
 
     return button;
@@ -55,7 +62,12 @@ const create_popup_element = (
 
     const popup_body = document.createElement('div');
     popup_body.setAttribute('popup-section', 'content');
-    popup_body.innerText = popup.message;
+    const lines = popup.message.split('\n');
+    lines.forEach((line) => {
+        const p = document.createElement('p');
+        p.innerText = line;
+        popup_body.appendChild(p);
+    });
 
     popup_content.appendChild(popup_header);
     popup_content.appendChild(popup_body);

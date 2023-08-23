@@ -59,6 +59,11 @@ export const popup_input = <e>(
 
     // -- Create the input element
     const input = document.createElement('input');
+
+    // -- CHeck if its a checkbox and if the placeholder is true
+    if (type === 'checkbox' && placeholder === 'true') 
+        input.setAttribute('checked', '');
+
     input.setAttribute('type', type);
     input.setAttribute('placeholder', placeholder);
     input.addEventListener('change', () => on_change(input.value as unknown as e));

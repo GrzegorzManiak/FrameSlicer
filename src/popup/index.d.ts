@@ -4,10 +4,12 @@ export type PopupButtonType =
     'INFO' | 
     'SUCCESS';
 
+export type LockStateFunction = (state: boolean) => void;
+
 export interface PopupButton {
     text: string;
     type: PopupButtonType;
-    callback: () => void;
+    callback: (lsf: LockStateFunction) => void;
 }
 
 export interface Popup {

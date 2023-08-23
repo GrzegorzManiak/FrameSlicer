@@ -130,7 +130,11 @@ export default class Shortcuts {
 
 
         // -- Make sure that ctrl | shift | alt are pressed
-        if (modifiers.length === 0) {
+        //    or that a Fx key is pressed
+        if (
+            modifiers.length === 0 &&
+            !event.key.startsWith('F')
+        ) {
             this._keys_pressed = [];
             return;
         };

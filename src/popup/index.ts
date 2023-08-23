@@ -9,23 +9,7 @@ if (!popup_container) {
     log('ERROR', 'Missing popup container');
     throw new Error('Missing popup container');
 }
-// <popup x-button='true' anim='in'>
-// <div>
-//     <div popup-section='header'>
-//         <h1 popup-section='title'>Title</h1>
-//         <i popup-section='close' class='fas fa-times'></i>
-//     </div>
-    
-//     <p popup-section='content'></p>
 
-//     <div popup-section='buttons'>
-//         <button popup-button='ERROR'></button>
-//         <button popup-button='WARNING'></button>
-//         <button popup-button='INFO'></button>
-//         <button popup-button='SUCCESS'></button>
-//     </div>
-// </div>
-// </popup>
 
 
 const create_button = (
@@ -42,6 +26,8 @@ const create_button = (
 
     return button;
 };
+
+
 
 const create_popup_element = (
     popup: Popup,
@@ -71,13 +57,15 @@ const create_popup_element = (
     popup_body.setAttribute('popup-section', 'content');
     popup_body.innerText = popup.message;
 
-    if (element) {
-        popup_body.appendChild(element);
-        element.setAttribute('popup-section', 'cust-content');
-    }
-
     popup_content.appendChild(popup_header);
     popup_content.appendChild(popup_body);
+
+    if (element) {
+        const custom_content = document.createElement('div');
+        custom_content.appendChild(element);
+        custom_content.setAttribute('popup-section', 'cust-content');
+        popup_content.appendChild(custom_content);
+    }
 
     if (popup.buttons.length > 0) {
         const popup_buttons = document.createElement('div');
@@ -94,64 +82,67 @@ const create_popup_element = (
     return popup_element;
 };
 
+
+
 /**
  * @name create_popup
  * Creates a popup box given a Popup object
  * 
  * @param {Popup} popup - The popup object
  * @param {HTMLElement} [element=null] - Custom elements that can be added to the popup
+ * @param {number} [timeout=4000] - The time in ms to wait before closing the popup
  * 
  * @returns {() => void} A function to close the popup
  */
 export const create_popup = (
     popup: Popup,
-    element: HTMLElement = null
+    element: HTMLElement = null,
+    timeout: number = 4000
 ): () => void => {
     log('INFO', 'Creating popup');
     const popup_element = create_popup_element(popup, element);
     popup_container.appendChild(popup_element);
-
     let closed = false;
-    new Promise((resolve) => {
-        
-        const btns = popup_element.querySelectorAll('button');
-        btns.forEach((btn) => btn.addEventListener('click', () => {
-            if (!popup.auto_close) return;
-            closed = true;
-        }));
-
-        const x_btn = popup_element.querySelector('[popup-section="close"]');
-        if (x_btn) x_btn.addEventListener('click', () => {
-            if (!popup.close_button) return;
-            closed = true;
-        });
-
-        
-        // -- Check if the popup has been closed
-        const check_closed = () => {
-
-            // -- Wait for the popup to be closed
-            if (!closed) return setTimeout(check_closed, 100);
-
-            // -- Else close the popup
-            popup_element.setAttribute('anim', 'out');
-            popup_element.addEventListener('animationend', () => 
-            popup_container.removeChild(popup_element));
-            log('INFO', 'Popup closed');
-
-            // -- Remove the element after 3 sec if it doesn't close
-            setTimeout(() => {
-                if (!popup_element.parentNode) return;
-                popup_element.parentNode.removeChild(popup_element);
-                log('WARN', 'Emergency popup close');
-            }, 3000);
-        }
 
 
-        // -- Start the check
-        check_closed();
+    // -- Add button listeners
+    const btns = popup_element.querySelectorAll('button');
+    btns.forEach((btn) => btn.addEventListener('click', () => {
+        if (!popup.auto_close) return;
+        closed = true;
+    }));
+
+    
+    // -- Top right close button
+    const x_btn = popup_element.querySelector('[popup-section="close"]');
+    if (x_btn) x_btn.addEventListener('click', () => {
+        if (!popup.close_button) return;
+        closed = true;
     });
 
-    // -- Return a function to close the popup
+    
+    // -- Check if the popup has been closed
+    const check_closed = () => {
+
+        // -- Wait for the popup to be closed
+        if (!closed) return setTimeout(check_closed, 100);
+
+        // -- Else close the popup
+        popup_element.setAttribute('anim', 'out');
+        popup_element.addEventListener('animationend', () => 
+        popup_container.removeChild(popup_element));
+        log('INFO', 'Popup closed');
+
+        // -- Remove the element after x sec if it doesn't close
+        setTimeout(() => {
+            if (!popup_element.parentNode) return;
+            popup_element.parentNode.removeChild(popup_element);
+            log('WARN', 'Emergency popup close');
+        }, timeout);
+    };
+
+
+    // -- Start the check loop and return the close function
+    check_closed();
     return () => { closed = true; };
 };

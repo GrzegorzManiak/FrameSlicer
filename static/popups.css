@@ -147,3 +147,146 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
 [popup-section='cust-content'] {
     width: 100%;
 }
+
+
+[popup-input] {
+    color: #ffffff;
+    padding: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+
+    display: flex;
+    flex-direction: column;
+}
+
+[popup-input] p {
+    margin: 0;
+    user-select: none;
+}
+
+.popup-input-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+}
+
+.popup-input-desc {
+    font-size: 0.8rem;
+    font-weight: 300;
+}
+
+[popup-input] > .popup-input-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+[popup-input][has-desc='false'] .popup-input-dash,
+[popup-input][has-desc='false'] .popup-input-desc {
+    display: none;
+}
+
+.popup-input-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.popup-input-group > * {
+    flex-grow: 1;
+}
+
+/* 
+    Inputs section, everything above this
+    is universal for all inputs
+*/
+[popup-input] input[type="text"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+    flex-grow: 1;
+    height: 1.5rem;
+    border-radius: var(--box-radius);
+    border: none;
+    background-color: var(--input-color);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+}
+
+[popup-input] input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+
+
+
+[popup-input] input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+    height: 1.5rem;
+    border-radius: var(--box-radius);
+    border: none;
+    background-color: var(--input-color);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+    width: 3rem;
+}
+
+[popup-input] input[type="number"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+[popup-input][type='number'] {
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    flex-direction: row-reverse;
+}
+
+[popup-input][type='number'] .popup-input-header {
+    margin: 0;
+}
+
+
+
+[popup-input] input[type="checkbox"] {
+    -moz-appearance: checkbox;
+    appearance: checkbox;
+    height: 1.5rem;
+    border-radius: var(--box-radius);
+    border: none;
+    background-color: var(--input-color);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+    align-self: baseline;
+}
+
+[popup-input] input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+[popup-input][type='checkbox'] {
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    flex-direction: row-reverse;
+}
+
+[popup-input][type='checkbox'] .popup-input-header {
+    margin: 0;
+}

@@ -10,6 +10,7 @@ import Shortcuts from './shortcuts';
 import { log } from './log';
 import { init_zoom } from './zoom';
 import { create_popup } from './popup';
+import { create_input_group, popup_input } from './popup/inputs';
 
 // -- Load the shortcuts
 const si = Shortcuts.get_instance();
@@ -84,7 +85,9 @@ const close_intro = create_popup({
     ],
     auto_close: false,
     close_button: false,
-});
+}, create_input_group().appendChild(
+    popup_input('text', 'Project Name', 'project_name', 'checkbox')
+));
 
 
 // // -- Ask the user to save before leaving

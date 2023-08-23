@@ -17,6 +17,5 @@ export const assign_actions = () => {
     // -- Add the shortcut
     si.assign_action('file-export', export_menu_prompt);
     si.assign_action('file-import', import_menu_prompt);
-
     si.assign_action('about', about_menu_prompt);
 };

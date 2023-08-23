@@ -69,16 +69,18 @@ export const import_menu_prompt = () => {
     open = true;
     
     // -- Create the popup
-    const close_prompt = create_popup({
+    const prompt = create_popup({
         title: 'Import',
         message: 'Import a .fse file, this will overwrite your current project, any unsaved changes will be lost.',
         buttons: [{ 
-            text: 'Import', type: 'SUCCESS', callback: (lock) => {
+            text: 'Import', 
+            type: 'SUCCESS', 
+            callback: (lock) => {
                 // -- Lock the button
                 lock(true);
 
                 // -- Open the file dialog
-                open_file_dialog(lock, close_prompt);
+                open_file_dialog(lock, prompt.close);
             } 
         }],
         auto_close: false,
@@ -86,8 +88,8 @@ export const import_menu_prompt = () => {
         on_close: () => open = false,
     }, create_input_group().appendChild(
         popup_input(
-            'Save locally', 
-            'Adds the imported project to your saved project list.', 
+            'Save project', 
+            'Automatically save your project locally',
             'true', 
             'checkbox'
         )

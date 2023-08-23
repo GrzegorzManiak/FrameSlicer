@@ -16,7 +16,7 @@ export const about_menu_prompt = () => {
     open = true;
     
     // -- Create the popup
-    const close_prompt = create_popup({
+    create_popup({
         title: 'About',
         message: `
             FS Editor is a free and open source project that is being developed by Grzegorz M.

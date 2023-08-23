@@ -20,3 +20,8 @@ export interface Popup {
     close_button: boolean;
     on_close?: () => void;
 }
+
+export interface PopupReturns {
+    close: () => void;
+    lock_button: (state: boolean, name: string) => void;
+}

@@ -1,4 +1,4 @@
-import { Popup, PopupButton } from './index.d';
+import { Popup, PopupButton, PopupReturns } from './index.d';
 import { log } from '../log';
 
 
@@ -104,13 +104,13 @@ const create_popup_element = (
  * @param {HTMLElement} [element=null] - Custom elements that can be added to the popup
  * @param {number} [timeout=4000] - The time in ms to wait before closing the popup
  * 
- * @returns {() => void} A function to close the popup
+ * @returns {PopupReturns} A function to close the popup
  */
 export const create_popup = (
     popup: Popup,
     element: HTMLElement = null,
     timeout: number = 4000
-): () => void => {
+): PopupReturns => {
     log('INFO', 'Creating popup');
     const popup_element = create_popup_element(popup, element);
     popup_container.appendChild(popup_element);
@@ -158,5 +158,11 @@ export const create_popup = (
 
     // -- Start the check loop and return the close function
     check_closed();
-    return () => { closed = true; };
+    return {
+        close: () => closed = true,
+        lock_button: (state: boolean, name: string) => {
+            const btn = Array.from(popup_element.querySelectorAll(`[btn-text="${name}"]`));
+            btn.forEach((b) => state ? b.setAttribute('disabled', '') : b.removeAttribute('disabled'));
+        }
+    }
 };

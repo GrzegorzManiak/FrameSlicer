@@ -18,7 +18,7 @@ export default class Shortcuts {
         this._load_shortcuts();
         this._ensure_unique_ids();
         this._construct_shortcut_map();
-        this.star_listening();
+        this.start_listening();
         log('INFO', 'Shortcuts loaded');
     }
 
@@ -187,13 +187,34 @@ export default class Shortcuts {
      * 
      * @returns {void}
      */
-    public star_listening(): void {
+    public start_listening(): void {
         log('INFO', 'Starting shortcut listening');
         document.addEventListener('keydown', 
             this._handle_key_press.bind(this));
 
         document.onkeydown = function (e) {
-            return false;
+            // -- Allow inspect element
+            if (
+                e.ctrlKey && 
+                e.shiftKey && 
+                e.key === 'I'
+            ) return true;
+
+            // -- Allow reset
+            if (
+                e.ctrlKey &&
+                e.shiftKey &&
+                e.key === 'R'
+            ) return true;
+            
+            // -- If its a modifier key, prevent default
+            if (
+                e.ctrlKey || 
+                e.shiftKey || 
+                e.altKey
+            ) return false
+            
+            return true;
         }
     }
 

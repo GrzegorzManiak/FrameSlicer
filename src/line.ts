@@ -20,6 +20,7 @@ export default class Line {
     public constructor(
         layer: konva.Layer,
         config: LineConfiguration,
+        init_anchors: boolean = true
     ) {
         const [c_width, c_height] = get_client_size();
         const c_center_x = c_width / 2 - config.size.width / 2,
@@ -128,6 +129,7 @@ export default class Line {
 
         // -- Initialize the anchors
         this._anchors = [];
+        if (init_anchors)
         this._init_anchors();
     }
 
@@ -191,6 +193,7 @@ export default class Line {
             handle_neg_y: 0,
         };
 
+
         // -- Add the new elements
         this._layer.add(anchor_object.line);
         this._layer.add(anchor_object.shape);
@@ -230,7 +233,7 @@ export default class Line {
 
         // -- Create the anchors
         for (let i = 0; i < this._config.anchor_spread + 1; i++) {
-            this.add_anchor(
+            this._add_anchor(
                 offset_left + anchor_ammount * i,
                 offset_top - this._config.y_offset,
             )
@@ -241,17 +244,18 @@ export default class Line {
 
     /**
      * @name add_anchor
-     * Adds an anchor to the line
+     * Adds an anchor to the line, internall function
+     * use the public add_anchor function instead.
      * 
      * @param {number} x The x position of the anchor
      * @param {number} y The y position of the anchor
      * 
-     * @returns {void} Nothing
+     * @returns {Anchor} The anchor that was added
      */
-    public add_anchor( 
+    public _add_anchor( 
         x: number, 
         y: number
-    ): void {
+    ): Anchor {
         // -- Create the anchor
         const anchor = this._add_anchor_elements(),
         a_size = anchor.shape.size();
@@ -280,7 +284,123 @@ export default class Line {
             x: x - handle.width() / 2,
             y: this._config.achor_position === 'bottom' ? anchor.handle_y : anchor.handle_neg_y
         });
+
+        // -- Return the anchor
+        return anchor;
     };
+
+
+
+    /**
+     * @name _calculate_anchor_position
+     * Calculates the anchor position based on percentages
+     * 
+     * @param {number} x_percent - The x position of the anchor in percent (0 start - 1 end)
+     * @param {number} y_percent - The y position of the anchor in percent (0 top - 1 bottom)
+     * 
+     * @returns {{x: number, y: number}} The calculated position of the anchor
+     */
+    public _calculate_anchor_position(
+        x_percent: number = 0,
+        y_percent: number = 0,
+    ): {
+        x: number,
+        y: number,
+    } {
+        // -- Bounding box
+        const bounding_box_pos = this._bounding_box.position(),
+            bounding_box_size = this._bounding_box.size();
+
+        // -- Anchor center
+        const anchor_center = {
+            x: bounding_box_pos.x + x_percent * bounding_box_size.width,
+            y: bounding_box_pos.y + y_percent * bounding_box_size.height,
+        };
+
+        // -- Return the anchor center
+        return anchor_center;
+    }
+
+
+
+    /**
+     * @name add_anchor
+     * Adds an anchor to the line
+     * 
+     * @param {number} x_percent - The x position of the anchor in percent (0 start - 1 end)
+     * @param {number} y_percent - The y position of the anchor in percent (0 top - 1 bottom)
+     * 
+     * @returns {Anchor} The anchor that was added
+     */
+    public add_anchor(
+        x_percent: number = 0,
+        y_percent: number = 0
+    ): Anchor {
+        // -- Clamp the values
+        x_percent = Math.max(0, Math.min(1, x_percent));
+        y_percent = Math.max(0, Math.min(1, y_percent));
+
+        // -- Calculate the anchor position
+        const anchor_center = this._calculate_anchor_position(
+            x_percent, 
+            y_percent
+        );
+
+        // -- Add the anchor
+        const anchor = this._add_anchor(
+            anchor_center.x,
+            this._bounding_box.position().y
+        );
+
+        anchor.shape.position({
+            x: anchor.shape.position().x,
+            y: anchor_center.y - anchor.shape.height() / 2,
+        });
+
+        // -- Return the anchor
+        return anchor;
+    }
+
+
+
+
+    /**
+     * @name get_anchor_precent
+     * Gets the position of an anchor in percent
+     * 
+     * @param {Anchor} anchor - The anchor to get the position of
+     * 
+     * @returns {{
+     *    x: number,    
+     *    y: number
+     * }} The position of the anchor in percent
+     */
+    public get_anchor_precent(
+        anchor: Anchor
+    ): { x: number, y: number } {
+        // -- Handle
+        const handle_pos = anchor.shape.position(),
+            handle_size = anchor.shape.size();
+
+        // -- Bounding box
+        const bounding_box_pos = this._bounding_box.position(),
+            bounding_box_size = this._bounding_box.size();
+
+        // -- Handle center
+        const handle_center = { 
+            x: handle_pos.x + handle_size.width / 2,
+            y: handle_pos.y + handle_size.height / 2,
+        }
+
+        // -- Return the precent
+        return { x: Math.abs(
+            (handle_center.x - bounding_box_pos.x) / 
+            bounding_box_size.width
+        ), y: Math.abs(
+            (handle_center.y - bounding_box_pos.y) /
+            bounding_box_size.height
+        ) };
+    }
 
 
 
@@ -320,6 +440,49 @@ export default class Line {
         });
 
     };
+
+
+
+    /**
+     * @name serialize
+     * Serializes the instance state into JSON format
+     * @returns {string} The serialized JSON representation of the instance state
+     */
+    public serialize(): string {
+        const serialized_state = {
+            config: this._config,
+            anchors: this._anchors.map(anchor => (
+                this.get_anchor_precent(anchor)
+            ))
+        };
+
+        // -- Return the serialized state
+        return JSON.stringify(serialized_state);
+    }
+
+
+
+    /**
+     * @name deserialize
+     * Deserializes JSON into an instance of the class
+     * @param {string} serialized_data - The serialized JSON representation of the instance state
+     * @param {konva.Layer} layer - The Konva layer to add the deserialized line to
+     * @returns {Line} The deserialized instance of the Line class
+     */
+    public static deserialize(serialized_data: string, layer: konva.Layer): Line {
+        const data = JSON.parse(serialized_data);
+        const deserialized_line = new Line(layer, data.config, false);
+
+        data.anchors.forEach(anchor_data => {
+            const anchor = deserialized_line.add_anchor(
+                anchor_data.x, 
+                anchor_data.y
+            );
+            
+        });
+
+        return deserialized_line;
+    }
 
 
 
@@ -411,11 +574,14 @@ export default class Line {
             // -- Get the anchor position
             let { x, y } = anchor.shape.position();
 
-            // -- Make sure that the anchor is within the line
-            const max_y = anchor.max_y,
-                min_y = anchor.min_y;
 
-            // -- Get the cnst X from the handle
+            // -- Make sure that the anchor is within the line
+            const bounding_box_pos = line._bounding_box.position(),
+                max_y = bounding_box_pos.y + line.config.size.height,
+                min_y = bounding_box_pos.y;
+
+
+            // -- Get the anchors X position from the handle
             const handle_pos = anchor.handle.position(),
                 handle_size = anchor.handle.size(),
                 const_x = handle_pos.x + handle_size.width / 2;
@@ -458,8 +624,8 @@ export default class Line {
      */
     private static _handle_listener(
         line: Line, 
-        anchor: Anchor) 
-    {
+        anchor: Anchor
+    ): void {
         anchor.handle.on('dragmove', () => {
             // -- Get the handle position
             const [width, height] = get_client_size(),

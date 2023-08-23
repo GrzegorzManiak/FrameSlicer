@@ -4,20 +4,23 @@ import { Colors, LineConfiguration, Lines } from './index.d';
 import { render_line } from './render';
 import { draw_grid } from './render/ruler';
 import { handle_controlls } from './view_controlls';
-import { download_gcode, points_to_gcode, step_points, turn_line_to_points } from './gcode';
 
 import Line from './line';
 import Shortcuts from './shortcuts';
+import { log } from './log';
+
+// -- Load the shortcuts
+const si = Shortcuts.get_instance();
 
 // -- Stage
 let [width, height] = get_client_size();
-const _stage = new konva.Stage({
+export const _stage = new konva.Stage({
     container: 'canvas-container',
     width, height,
 });
 
 // -- Main Layer
-const _layer = new konva.Layer();
+export const _layer = new konva.Layer();
 _stage.add(_layer);
 
 
@@ -53,10 +56,11 @@ const config: LineConfiguration = {
 }
 
 
-// -- Load the shortcuts
-const si = Shortcuts.get_instance();
-
-const x_line = new Line(_layer, config);
+//let x_line = new Line(_layer, config);
+const x_line = Line.deserialize(
+    '{"config":{"colors":{"anchor":{"fill":"#47ffbc","stroke":"#4a4a4a"},"anchor_guide":{"fill":"#108258","stroke":"#108258"},"anchor_handle":{"fill":"#47ffbc","stroke":"#4a4a4a"},"bounding_box":{"fill":"#ffffff10","stroke":"#ffffff15"},"depth_line":{"fill":"#ff3049","stroke":"#eb4034"},"line":{"fill":"#ebebeb30","stroke":"#ebebeb"},"path":{"fill":"#ebebeb30","stroke":"#ebebeb"}},"anchor_spread":10,"handle_padding":5,"size":{"width":500,"height":100},"cutting_depth":60,"is_y_line":false,"y_offset":0,"depth_buffer":20,"achor_position":"bottom"},"anchors":[{"x":0,"y":0},{"x":0.1,"y":0},{"x":0.2,"y":0},{"x":0.3,"y":0},{"x":0.4,"y":0},{"x":0.5,"y":0},{"x":0.6,"y":0},{"x":0.7,"y":0.14},{"x":0.718,"y":0.04},{"x":0.9,"y":0},{"x":1,"y":0}]}',
+    _layer,
+);
 const y_line = new Line(_layer, {
     ...config,
     is_y_line: true,
@@ -72,87 +76,19 @@ draw_grid(y_line, true, false);
 handle_controlls(_stage);
 
 
-
-// -- Zoom 
-const zoom_plus = document.querySelector('.zoom-in') as HTMLElement,
-    zoom_minus = document.querySelector('.zoom-out') as HTMLElement,
-    zoom_level = document.querySelector('#zoom-level') as HTMLInputElement;
-
-if (!zoom_plus || !zoom_minus || !zoom_level
-) throw new Error('Missing zoom elements');
-
-const set_zoom = (value: number) => {
-    // -- Clamp zoom value
-    if (value < min_zoom) value = min_zoom;
-    if (value > max_zoom) value = max_zoom;
-    
-    // -- Round to 2 decimals
-    value = Math.round(value * 100) / 100;
-    zoom_level.value = `${value}`;
-
-    const old_scale = _stage.scaleX();
-    const new_scale = value;
-
-    // -- Calculate the zoom origin (center of the stage)
-    const center_x = _stage.width() / 2;
-    const center_y = _stage.height() / 2;
-
-    // -- Apply new scale and position
-    _stage.scale({ x: new_scale, y: new_scale });
-    _stage.position({ 
-        x: center_x - (center_x - _stage.x()) * (new_scale / old_scale),
-        y: center_y - (center_y - _stage.y()) * (new_scale / old_scale),
-    });
-
-    _stage.batchDraw();
-
-}
-
-const change_ammount = 0.05;
-const min_zoom = 0.25;
-const max_zoom = 2;
-set_zoom(1);
-
-
-// -- Buttons
-si.assign_action('view-zoom-in', () =>  {
-    const current = parseFloat(zoom_level.value);
-    set_zoom(current + change_ammount);
+si.assign_action('dev-serilize-x', () => {
+    log('INFO', x_line.serialize());
 });
 
-zoom_plus.addEventListener('click', () => {
-    const current = parseFloat(zoom_level.value);
-    set_zoom(current + change_ammount);
+si.assign_action('dev-serilize-y', () => {
+    log('INFO', y_line.serialize());
 });
 
 
-si.assign_action('view-zoom-out', () =>  {
-    const current = parseFloat(zoom_level.value);
-    set_zoom(current - change_ammount);
-});
 
-zoom_minus.addEventListener('click', () => {
-    const current = parseFloat(zoom_level.value);
-    set_zoom(current - change_ammount);
-});
-
-
-zoom_level.addEventListener('change', () => {
-    const current = parseFloat(zoom_level.value);
-    set_zoom(current);
-});
-
-
-// -- Scroll
-_stage.on('wheel', (e) => {
-    // -- Get the zoom level
-    const current = parseFloat(_stage.scaleX().toFixed(2));
-
-    // -- Calculate the new zoom level
-    let new_zoom = current;
-    if (e.evt.deltaY < 0) new_zoom = Math.min(max_zoom, current + change_ammount);
-    else new_zoom = Math.max(min_zoom, current - change_ammount);
-
-    // -- Set the new zoom level
-    set_zoom(new_zoom);
-});
+// // -- Ask the user to save before leaving
+// window.onbeforeunload = function() {
+//     log('WARN', 'User is leaving the page');
+//     // TODO: Prompt the user to save
+//     return 'Are you sure you want to leave?';
+// };

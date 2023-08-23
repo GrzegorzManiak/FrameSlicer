@@ -115,4 +115,23 @@ export default [
         alt: false,
         key: ['F1'],
     },
+
+
+    // -- DEV
+    {
+        id: 'dev-serilize-x',
+        ctrl: true,
+        shift: true,
+        alt: false,
+        key: ['x'],
+    },
+
+    {
+        id: 'dev-serilize-y',
+        ctrl: true,
+        shift: true,
+        alt: false,
+        key: ['y'],
+    },
+
 ] as  Array<Shortcut>;

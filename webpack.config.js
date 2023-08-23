@@ -76,7 +76,7 @@ module.exports = {
             threadPool: happyThreadPool,
             loaders: ['babel-loader?cacheDirectory=true'],
         }),
-        new BundleAnalyzerPlugin(),
+        // new BundleAnalyzerPlugin(),
         new BundleTracker({filename: './webpack_bundles/webpack-stats.json'}),
         new CleanWebpackPlugin(),
     ],

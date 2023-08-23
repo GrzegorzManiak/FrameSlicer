@@ -26,6 +26,7 @@ popup {
     display: flex;
     justify-content: center;
     align-items: center;
+    pointer-events: all;
 }
 
 popup[anim='in'] { animation: popup-fadein 1s forwards; }
@@ -141,4 +142,8 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
 [popup-button='INFO'] {
     --color: var(--info-main);
     --light: var(--info-light);
+}
+
+[popup-section='cust-content'] {
+    width: 100%;
 }

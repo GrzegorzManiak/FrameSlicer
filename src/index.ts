@@ -74,15 +74,17 @@ draw_grid(y_line, true, false);
 handle_controlls(_stage);
 
 
-create_popup({
-    title: 'Hello World',
-    message: 'This is a test popup',
+const close_intro = create_popup({
+    title: 'Hello!',
+    message: 'Would you like to create a new project or open an existing one?',
     buttons: [
-        { text: 'OK', type: 'ERROR', callback: () => log('INFO', 'OK') },
+        { text: 'New', type: 'SUCCESS', callback: () => close_intro() },
+        { text: 'Open', type: 'INFO', callback: () => log('INFO', 'OK') },
+        { text: 'Import', type: 'WARNING', callback: () => log('INFO', 'OK') },
     ],
-    auto_close: true,
-    close_button: true,
-})
+    auto_close: false,
+    close_button: false,
+});
 
 
 // // -- Ask the user to save before leaving

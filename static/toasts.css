@@ -1,0 +1,185 @@
+/******************/
+/*     TOASTS     */
+/******************/
+
+/* 
+    God im so bad at animations, im trying to make
+    it slide in smoothly and fade in smoothl
+*/
+@keyframes toast-in {
+    0% {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toast-out {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes toast_adjust {
+    from {
+        transform: translateY(0px);
+    }
+
+    to {
+        transform: translateY(var(--toast-adjust-height));
+    }
+}
+
+#toasts {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 99999;
+    margin: 20px;
+}
+
+.toast {
+    background-color: var(--toast_background) !important;
+    color: var(--font-color) !important;
+    border-radius: 0.35rem !important;
+    padding: 1rem !important;
+    border-left: 0.175rem solid var(--accent-color) !important;
+    margin-bottom: 0.5rem !important;
+    animation: toast-in 1s ease-in-out 1 forwards;
+    transition: all 1s ease-in-out;
+
+    display: flex;
+    align-content: center;
+    justify-content: start;
+
+
+    box-shadow:
+        8px 0px 3.1px rgba(0, 0, 0, 0.006),
+        19.3px 0px 7.4px rgba(0, 0, 0, 0.008),
+        36.3px 0px 13.9px rgba(0, 0, 0, 0.01),
+        64.8px 0px 24.8px rgba(0, 0, 0, 0.012),
+        121.2px 0px 46.4px rgba(0, 0, 0, 0.014),
+        290px 0px 111px rgba(0, 0, 0, 0.02)
+    ;
+}
+
+/* 450 start breaking */
+@media only screen and (max-width: 450px) {
+    #toasts {
+        margin: 0;
+        margin-top: 0.5rem;
+    }
+
+    .toast {
+        width: 100vw!important;
+    }
+}
+
+.toast-out {
+    animation: toast-out 1s ease-in-out 1 forwards;
+}
+
+.toast-icon {
+    margin-right: 1rem;
+    width: 2rem;
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+.toast-icon > i {
+    text-align: center;
+    width: 100%;
+    display: none;
+    font-size: 1.2rem;
+}
+
+.toast-close {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.toast-close > i {
+    text-align: center;
+    width: 100%;
+    font-size: 1.2rem;
+    user-select: none;
+}
+
+[toast-type='success'] {
+    border-left-color: var(--success-main) !important;
+    background: linear-gradient(90deg, var(--ss-success) -150%, var(--toast_background) 100%);
+}
+
+[toast-type='success'] [icon='success'] {
+    color: var(--ss-success) !important;
+    display: block;
+}
+
+
+[toast-type='error'] {
+    border-left-color: var(--error-main) !important;
+    background: linear-gradient(90deg, var(--error-main) -150%, var(--toast_background) 100%);
+}
+
+[toast-type='error'] [icon='error'] {
+    color: var(--error-main) !important;
+    display: block;
+}
+
+
+[toast-type='warning'] {
+    border-left-color: var(--warning-main) !important;
+    background: linear-gradient(90deg, var(--warning-main) -150%, var(--toast_background) 100%);
+}
+
+[toast-type='warning'] [icon='warning'] {
+    color: var(--warning-main) !important;
+    display: block;
+}
+
+
+[toast-type='info'] {
+    border-left-color: var(--info-main) !important;
+    background: linear-gradient(90deg, var(--info-main) -150%, var(--toast_background) 100%);
+}
+
+[toast-type='info'] [icon='info'] {
+    color: var(--info-main) !important;
+    display: block;
+}
+
+
+.toast-content-header {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    user-select: none;
+}
+
+.toast-content-text {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    user-select: none;
+}
+
+.toast-content-time {
+    font-size: 0.75rem;
+    color: var(--greyed-out-font-color);
+    margin-top: 0.25rem;
+    user-select: none;
+}
+
+.toast-content {
+    width: 15rem;
+}

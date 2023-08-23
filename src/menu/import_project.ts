@@ -1,6 +1,7 @@
 import { log } from '../log';
 import { create_popup } from '../popup';
 import { create_input_group, popup_input } from '../popup/inputs';
+import { create_toast } from '../toasts';
 
 let open = false;
 
@@ -14,12 +15,14 @@ const open_file_dialog = (
     input.setAttribute('type', 'file');
     input.setAttribute('accept', '.fse');
 
+    // -- When the file is selected
     input.addEventListener('change', (e: InputEvent) => {
 
         // -- Check if a file was selected
         const file_list = (e.target as any)?.files;
         if (!file_list || !file_list[0]) {
             log('INFO', 'No file selected');
+            create_toast('warning', 'Import', 'No file selected');
             return lock(false);
         }
 
@@ -37,6 +40,13 @@ const open_file_dialog = (
             return close();
         };
 
+    });
+
+    // -- When the file dialog is closed
+    input.addEventListener('cancel', () => {
+        log('INFO', 'File dialog closed');
+        create_toast('warning', 'File Import', 'No file selected for import');
+        return lock(false);
     });
 
     // -- Open the file dialog

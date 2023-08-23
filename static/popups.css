@@ -219,6 +219,7 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
     font-size: 13px;
     font-weight: 400;
     text-align: left;
+    padding: 0.25rem;
 }
 
 [popup-input] input[type="text"]:focus {

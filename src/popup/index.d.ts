@@ -16,4 +16,5 @@ export interface Popup {
     buttons: PopupButton[];
     auto_close: boolean;
     close_button: boolean;
+    on_close?: () => void;
 }

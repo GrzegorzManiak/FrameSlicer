@@ -11,6 +11,7 @@ import { log } from './log';
 import { init_zoom } from './zoom';
 import { create_popup } from './popup';
 import { create_input_group, popup_input } from './popup/inputs';
+import { assign_actions } from './menu';
 
 // -- Load the shortcuts
 const si = Shortcuts.get_instance();
@@ -26,6 +27,7 @@ export const _stage = new konva.Stage({
 export const _layer = new konva.Layer();
 _stage.add(_layer);
 init_zoom();
+assign_actions();
 
 
 
@@ -75,19 +77,17 @@ draw_grid(y_line, true, false);
 handle_controlls(_stage);
 
 
-const close_intro = create_popup({
-    title: 'Hello!',
-    message: 'Would you like to create a new project or open an existing one?',
-    buttons: [
-        { text: 'New', type: 'SUCCESS', callback: () => close_intro() },
-        { text: 'Open', type: 'INFO', callback: () => log('INFO', 'OK') },
-        { text: 'Import', type: 'WARNING', callback: () => log('INFO', 'OK') },
-    ],
-    auto_close: false,
-    close_button: false,
-}, create_input_group().appendChild(
-    popup_input('text', 'Project Name', 'project_name', 'checkbox')
-));
+// const close_intro = create_popup({
+//     title: 'Hello!',
+//     message: 'Would you like to create a new project or open an existing one?',
+//     buttons: [
+//         { text: 'New', type: 'SUCCESS', callback: () => close_intro() },
+//         { text: 'Open', type: 'INFO', callback: () => log('INFO', 'OK') },
+//         { text: 'Import', type: 'WARNING', callback: () => log('INFO', 'OK') },
+//     ],
+//     auto_close: false,
+//     close_button: false,
+// });
 
 
 // // -- Ask the user to save before leaving

@@ -132,12 +132,14 @@ export const create_popup = (
         popup_element.addEventListener('animationend', () => 
         popup_container.removeChild(popup_element));
         log('INFO', 'Popup closed');
+        popup.on_close?.();
 
         // -- Remove the element after x sec if it doesn't close
         setTimeout(() => {
             if (!popup_element.parentNode) return;
             popup_element.parentNode.removeChild(popup_element);
             log('WARN', 'Emergency popup close');
+            popup.on_close?.();
         }, timeout);
     };
 

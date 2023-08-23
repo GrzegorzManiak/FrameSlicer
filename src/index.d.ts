@@ -110,3 +110,13 @@ export interface Colors {
         fill: string,
     };
 }
+
+
+
+export interface File {
+    name: string;
+    x_line: string;
+    y_line: string;
+    last_modified: number;
+    created: number;
+}

@@ -25,6 +25,20 @@
     --int-box-padding: 10px;
 
     --menu-box-width: 250px;
+    --popup-box-width: 400px;
+    
+
+    --error-main: #FF6666;
+    --error-light: #FFB3B3;
+
+    --warning-main: #E3C567;
+    --warning-light: #F2E3B3;
+
+    --success-main: #6FD08C;
+    --success-light: #B3E3C5;
+
+    --info-main: #39A9DB;
+    --info-light: #B3DDE3;
 }
 
 body {

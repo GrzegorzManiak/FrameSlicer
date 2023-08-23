@@ -18,9 +18,17 @@ if (!zoom_plus || !zoom_minus || !zoom_level
  * @name set_zoom
  * Set the zoom level
  * 
+ * @param {number} value - The value to set the zoom to
+ * @param {number} [min_zoom=0.25] - The minimum zoom level
+ * @param {number} [max_zoom=2] - The maximum zoom level
+ * 
  * @param value - The value to set the zoom to
  */
-export const set_zoom = (value: number) => {
+export const set_zoom = (
+    value: number,
+    min_zoom: number = 0.25,
+    max_zoom: number = 2,
+) => {
     // -- Clamp zoom value
     if (value < min_zoom) value = min_zoom;
     if (value > max_zoom) value = max_zoom;
@@ -48,41 +56,64 @@ export const set_zoom = (value: number) => {
 }
 
 
-// -- Zoom constants
-const change_ammount = 0.05;
-const min_zoom = 0.25;
-const max_zoom = 2;
+
+/**
+ * @name init_zoom
+ * Initialize the zoom functionality
+ * 
+ * @param {number} [change_ammount=0.05] - The ammount to change the zoom by
+ * @param {number} [min_zoom=0.25] - The minimum zoom level
+ * @param {number} [max_zoom=2] - The maximum zoom level
+ * 
+ * @returns {void} Nothing
+ */
+export const init_zoom = (
+    change_ammount: number = 0.05,
+    min_zoom: number = 0.25,
+    max_zoom: number = 2,
+) => {
 
 
-// -- Buttons
-const get_cur = () => parseFloat(zoom_level.value);
+    // -- Buttons
+    const get_cur = () => {
+        // -- Ensure the zoom level is a number
+        let zoom = parseFloat(zoom_level.value);
+        if (isNaN(zoom)) zoom = 1;
+        return zoom;
+    }
 
-// -- Zoom in
-si.assign_action('view-zoom-in', () => set_zoom(get_cur() + change_ammount));
-zoom_plus.addEventListener('click', () => set_zoom(get_cur() + change_ammount));
+    // -- Zoom in
+    si.assign_action('view-zoom-in', () => 
+        set_zoom(get_cur() + change_ammount, min_zoom, max_zoom));
+    zoom_plus.addEventListener('click', () => 
+        set_zoom(get_cur() + change_ammount, min_zoom, max_zoom));
 
-// -- Zoom out
-si.assign_action('view-zoom-out', () => set_zoom(get_cur() - change_ammount));
-zoom_minus.addEventListener('click', () => set_zoom(get_cur() - change_ammount));
+    // -- Zoom out
+    si.assign_action('view-zoom-out', () => 
+        set_zoom(get_cur() - change_ammount, min_zoom, max_zoom));
+    zoom_minus.addEventListener('click', () => 
+        set_zoom(get_cur() - change_ammount, min_zoom, max_zoom));
 
-// -- Zoom level
-zoom_level.addEventListener('change', () => set_zoom(get_cur()));
-
-
-// -- Scroll
-_stage.on('wheel', (e) => {
-    // -- Get the zoom level
-    const current = parseFloat(_stage.scaleX().toFixed(2));
-
-    // -- Calculate the new zoom level
-    let new_zoom = current;
-    if (e.evt.deltaY < 0) new_zoom = Math.min(max_zoom, current + change_ammount);
-    else new_zoom = Math.max(min_zoom, current - change_ammount);
-
-    // -- Set the new zoom level
-    set_zoom(new_zoom);
-});
+    // -- Zoom level
+    zoom_level.addEventListener('change', () => 
+        set_zoom(get_cur(), min_zoom, max_zoom));
 
 
-// -- Zoom to fit
-set_zoom(1);
+    // -- Scroll
+    _stage.on('wheel', (e) => {
+        // -- Get the zoom level
+        const current = parseFloat(_stage.scaleX().toFixed(2));
+
+        // -- Calculate the new zoom level
+        let new_zoom = current;
+        if (e.evt.deltaY < 0) new_zoom = Math.min(max_zoom, current + change_ammount);
+        else new_zoom = Math.max(min_zoom, current - change_ammount);
+
+        // -- Set the new zoom level
+        set_zoom(new_zoom, min_zoom, max_zoom);
+    });
+
+
+    // -- Zoom to fit
+    set_zoom(1);
+};

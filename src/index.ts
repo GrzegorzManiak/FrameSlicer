@@ -8,6 +8,8 @@ import { handle_controlls } from './view_controlls';
 import Line from './line';
 import Shortcuts from './shortcuts';
 import { log } from './log';
+import { init_zoom } from './zoom';
+import { create_popup } from './popup';
 
 // -- Load the shortcuts
 const si = Shortcuts.get_instance();
@@ -22,6 +24,7 @@ export const _stage = new konva.Stage({
 // -- Main Layer
 export const _layer = new konva.Layer();
 _stage.add(_layer);
+init_zoom();
 
 
 
@@ -33,7 +36,6 @@ const colors: Colors = {
     anchor: { fill: '#47ffbc', stroke: '#4a4a4a' },
     anchor_guide: { fill: '#108258', stroke: '#108258' },
     anchor_handle: { fill: '#47ffbc', stroke: '#4a4a4a' },
-
     bounding_box: { fill: '#ffffff10', stroke: '#ffffff15' },
     depth_line: { fill: '#ff3049', stroke: '#eb4034' },
     line: { fill: '#ebebeb30', stroke: '#ebebeb' },
@@ -56,11 +58,7 @@ const config: LineConfiguration = {
 }
 
 
-//let x_line = new Line(_layer, config);
-const x_line = Line.deserialize(
-    '{"config":{"colors":{"anchor":{"fill":"#47ffbc","stroke":"#4a4a4a"},"anchor_guide":{"fill":"#108258","stroke":"#108258"},"anchor_handle":{"fill":"#47ffbc","stroke":"#4a4a4a"},"bounding_box":{"fill":"#ffffff10","stroke":"#ffffff15"},"depth_line":{"fill":"#ff3049","stroke":"#eb4034"},"line":{"fill":"#ebebeb30","stroke":"#ebebeb"},"path":{"fill":"#ebebeb30","stroke":"#ebebeb"}},"anchor_spread":10,"handle_padding":5,"size":{"width":500,"height":100},"cutting_depth":60,"is_y_line":false,"y_offset":0,"depth_buffer":20,"achor_position":"bottom"},"anchors":[{"x":0,"y":0},{"x":0.1,"y":0},{"x":0.2,"y":0},{"x":0.3,"y":0},{"x":0.4,"y":0},{"x":0.5,"y":0},{"x":0.6,"y":0},{"x":0.7,"y":0.14},{"x":0.718,"y":0.04},{"x":0.9,"y":0},{"x":1,"y":0}]}',
-    _layer,
-);
+const x_line = new Line(_layer, config);
 const y_line = new Line(_layer, {
     ...config,
     is_y_line: true,
@@ -76,14 +74,15 @@ draw_grid(y_line, true, false);
 handle_controlls(_stage);
 
 
-si.assign_action('dev-serilize-x', () => {
-    log('INFO', x_line.serialize());
-});
-
-si.assign_action('dev-serilize-y', () => {
-    log('INFO', y_line.serialize());
-});
-
+create_popup({
+    title: 'Hello World',
+    message: 'This is a test popup',
+    buttons: [
+        { text: 'OK', type: 'ERROR', callback: () => log('INFO', 'OK') },
+    ],
+    auto_close: true,
+    close_button: true,
+})
 
 
 // // -- Ask the user to save before leaving

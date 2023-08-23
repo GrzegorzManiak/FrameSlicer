@@ -656,7 +656,7 @@ export default class Line {
 
             // -- Make sure that the anchor is within the line
             const bounding_box_pos = line._bounding_box.position(),
-                max_y = bounding_box_pos.y + line.config.size.height,
+                max_y = bounding_box_pos.y + line.config.cutting_depth,
                 min_y = bounding_box_pos.y;
 
 

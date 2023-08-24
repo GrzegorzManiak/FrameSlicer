@@ -1,9 +1,6 @@
 import Shortcuts from './shortcuts';
 import { _stage } from './index';
 
-// -- Load the shortcuts
-const si = Shortcuts.get_instance();
-
 // -- Zoom 
 const zoom_plus = document.querySelector('.zoom-in') as HTMLElement,
     zoom_minus = document.querySelector('.zoom-out') as HTMLElement,
@@ -72,7 +69,8 @@ export const init_zoom = (
     min_zoom: number = 0.25,
     max_zoom: number = 2,
 ) => {
-
+    // -- Load the shortcuts
+    const si = Shortcuts.get_instance();
 
     // -- Buttons
     const get_cur = () => {

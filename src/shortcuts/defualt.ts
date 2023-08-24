@@ -87,6 +87,7 @@ export default [
         key: ['control', 'p', 'j'],
     },
 
+    
     // -- Help menu shortcuts
     {
         id: 'help-about',

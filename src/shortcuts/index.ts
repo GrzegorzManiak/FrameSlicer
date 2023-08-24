@@ -8,14 +8,14 @@ export default class Shortcuts {
     private _shortcuts: Array<Shortcut> = [];
     private _storage_key = 'shortcuts';
     private _shortcut_map: ShortcutMap = {};
-    private _actions: Array<{[key: string]: () => void;}> = [];
+    private _actions: Array<{[key: string]: () => void}> = [];
     private _render_keys: boolean = true;
     
     readonly _key_display: HTMLElement | null = null;
     readonly _current_keys: HTMLElement | null = null;
     readonly _closest_shorcuts: HTMLElement | null = null;
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState
+    // -- https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState
     readonly used_modifiers = ['Alt', 'Control', 'Shift'];
     readonly disused_keys = [
         'AltGraph', 'CapsLock', 'FnLock', 
@@ -42,38 +42,91 @@ export default class Shortcuts {
         this._current_keys.setAttribute('id', 'current-keys');
         this._closest_shorcuts.setAttribute('id', 'closest-shortcuts');
 
-        document.body.appendChild(this._key_display);
         this._key_display.appendChild(this._current_keys);
         this._key_display.appendChild(this._closest_shorcuts);
+
+        document.body.appendChild(this._key_display);
+
         render_pressed_keys(this);
         log('INFO', 'Shortcuts loaded');
     }
 
 
 
-    // -- Encode the shortcuts to a string for storage
-    private _encode_shortcuts(): string {
-        return JSON.stringify(this._shortcuts);
+    /**
+     * @name get_instance
+     * Get the singleton instance of the Shortcuts class
+     * 
+     * @returns {Shortcuts} The singleton instance of the Shortcuts class
+     */
+    public static get_instance(): Shortcuts {
+        if (_instance === null) _instance = new Shortcuts();
+        return _instance;
+    }
+
+    
+
+    /**
+     * @name _load_shortcuts
+     * Loads the shortcuts from local storage or uses the default shortcuts
+     * 
+     * @returns {void}
+     */
+    private _load_shortcuts(
+    ): void {
+        log('INFO', 'Loading shortcuts from local storage');
+        const encoded = localStorage.getItem(this._storage_key);
+        
+        if (encoded === null) {
+            log('INFO', 'No shortcuts found in local storage, using default shortcuts');
+            this._shortcuts = def_shortcuts;
+        }
+
+        else this._shortcuts = this._decode_shortcuts(encoded);
+        log('INFO', 'Shortcuts loaded from local storage');
+        
+        this.save_shortcuts();
     }
 
 
 
-    // -- Ensure that there are no duplicate ids
-    private _ensure_unique_ids(): void {
+    /**
+     * @name _ensure_unique_ids
+     * This function ensurs that all the shortcuts have unique ids
+     * this is a recursive function that will add '_copy' to the end
+     * of the id if it is not unique
+     * 
+     * @returns {void}
+     */
+    private _ensure_unique_ids(
+    ): void {
         const ids: Array<string> = [];
         for (const shortcut of this._shortcuts) {
+
+            // -- Check if the id is unique
             if (ids.includes(shortcut.id)) {
                 log('ERROR', `Duplicate shortcut id: ${shortcut.id}`);
                 shortcut.id = `${shortcut.id}_copy`;
+                this._ensure_unique_ids();
             }
+
+            // -- If the id is unique, add it to the list
             ids.push(shortcut.id);
         }
     }
 
+   
 
-
-    // -- Construct the shortcut map
-    private _construct_shortcut_map() {
+    /**
+     * @name _construct_shortcut_map
+     * Constructs the shortcut map from the shortcuts
+     * Used for finding shortcuts by the currently pressed keys
+     * and being able to find the closest shortcuts
+     * 
+     * @returns {void}
+     */
+    private _construct_shortcut_map(
+    ): void {
         // -- Clear the shortcut map
         this._shortcut_map = {};
 
@@ -83,6 +136,7 @@ export default class Shortcuts {
             // -- Go trough the keys
             let current_map = this._shortcut_map;
             for (let i = 0; i < shortcut.key.length; i++) {
+
                 // -- Get the key
                 const key = shortcut.key[i].toUpperCase();
 
@@ -99,11 +153,33 @@ export default class Shortcuts {
             }
         }
     }
+
+
+    
+    /**
+     * @name _encode_shortcuts
+     * Encodes the shortcuts to a string
+     * 
+     * @returns {string} The encoded shortcuts
+     */
+    private _encode_shortcuts(
+    ): string {
+        return JSON.stringify(this._shortcuts);
+    }
+
     
 
-
-    // -- Decode the shortcuts from a string
-    private _decode_shortcuts(shortcuts: string): Array<Shortcut> {
+    /**
+     * @name _decode_shortcuts
+     * Decodes the shortcuts from a string
+     *  
+     * @param {string} shortcuts - The shortcuts to decode
+     * 
+     * @returns {Array<Shortcut>} The decoded shortcuts
+     */
+    private _decode_shortcuts(
+        shortcuts: string
+    ): Array<Shortcut> {
         const decoded = JSON.parse(shortcuts);
         let parsed: Array<Shortcut> = [];
 
@@ -113,9 +189,8 @@ export default class Shortcuts {
             // -- Check if the shortcut is valid
             if (
                 decoded[i].id === undefined ||
-                decoded[i].ctrl === undefined ||
-                decoded[i].shift === undefined ||
-                decoded[i].alt === undefined ||
+                decoded[i].clean === undefined ||
+                decoded[i].group === undefined ||
                 decoded[i].key === undefined
             ) continue;
 
@@ -148,18 +223,14 @@ export default class Shortcuts {
 
 
 
-    // -- Load the shortcuts from local storage (if any)
-    private _load_shortcuts(): void {
-        log('INFO', 'Loading shortcuts from local storage');
-        const encoded = localStorage.getItem(this._storage_key);
-        if (encoded === null) this._shortcuts = def_shortcuts;
-        else this._shortcuts = this._decode_shortcuts(encoded);
-        log('INFO', 'Shortcuts loaded from local storage');
-    }
-
-
-
-    // -- Get the modifier keys (even when no normal keys are pressed)
+    /**
+     * @name _get_modifier_keys
+     * Internal function to get the modifier keys from a keyboard event
+     * Taking into account that the user might press the modifier keys
+     * withouth pressing any other keys (eg. Ctrl + Shift)
+     * 
+     * @param {KeyboardEvent} event - The keyboard event
+     */
     private _get_modifier_keys(event: KeyboardEvent) {
         // -- The modifier keys
         const used_modifiers: Array<string> = [];
@@ -209,6 +280,11 @@ export default class Shortcuts {
         ) this._keys_pressed.push(event.key.toUpperCase());
 
 
+        // -- Check if the keys have changed
+        const key_string = this._keys_pressed.join(' + ');
+        if (key_string === this._prev_key_string) return;
+        this._prev_key_string = key_string;
+
         // -- Get the shortcuts
         const shortcuts = this._locate_shortcuts();
 
@@ -238,10 +314,6 @@ export default class Shortcuts {
      */
     public _locate_shortcuts(
     ): Array<Shortcut> {
-        // -- Check if the keys have changed
-        const key_string = this._keys_pressed.join(' ');
-        if (key_string === this._prev_key_string) return;
-        this._prev_key_string = key_string;
 
         // -- Array to hold the shortcuts
         let shortcuts: Array<Shortcut> = [],
@@ -259,7 +331,7 @@ export default class Shortcuts {
                 return [];
             };
 
-            // -- Add the shortcut to the list
+            // -- Add the shortcut to dthe list
             if (Array.isArray(current_map[key])) {
                 shortcuts = shortcuts.concat(current_map[key] as Array<Shortcut>);
                 break;
@@ -365,10 +437,12 @@ export default class Shortcuts {
      */
     public start_listening(): void {
         log('INFO', 'Starting shortcut listening');
-        document.addEventListener('keydown', 
-            this._handle_key_press.bind(this));
+        const si = this;
 
         document.onkeydown = function (e) {
+            // -- Handle the key press
+            si._handle_key_press(e);
+
             // -- Allow inspect element
             if (
                 e.ctrlKey && 
@@ -388,7 +462,7 @@ export default class Shortcuts {
                 e.ctrlKey || 
                 e.shiftKey || 
                 e.altKey
-            ) return false
+            ) return false;
             
             return true;
         };
@@ -418,18 +492,6 @@ export default class Shortcuts {
         document.onkeydown = function (e) {
             return true;
         }
-    }
-
-
-    /**
-     * @name get_instance
-     * Get the singleton instance of the Shortcuts class
-     * 
-     * @returns {Shortcuts} The singleton instance of the Shortcuts class
-     */
-    public static get_instance(): Shortcuts {
-        if (_instance === null) _instance = new Shortcuts();
-        return _instance;
     }
 
 

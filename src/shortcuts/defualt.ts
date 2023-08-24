@@ -4,115 +4,70 @@ export default [
     // -- File menu shortcuts
     {
         id: 'file-save',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['s'],
+        key: ['control', 's'],
     },
     {
         id: 'file-load',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['l'],
+        key: ['control', 'l'],
     },
     {
         id: 'file-new',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['n'],
+        key: ['control', 'n'],
     },
     {
         id: 'file-list',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['j'],
+        key: ['control', 'j'],
     },
     {
         id: 'file-export',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['e'],
+        key: ['control', 'e'],
     },
     {
         id: 'file-import',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['i'],
+        key: ['control', 'i'],
     },
 
 
     // -- View menu shortcuts
     {
         id: 'view-zoom-in',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['='],
+        key: ['control', '='],
     },
     {
         id: 'view-zoom-out',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['-'],
+        key: ['control', '-'],
     },
     {
         id: 'view-fullscreen',
-        ctrl: false,
-        shift: false,
-        alt: false,
         key: ['F11'],
     },
     {
         id: 'view-theme',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['t'],
+        key: ['control', 't'],
     },
 
 
     // -- Pattern menu shortcuts
     {
         id: 'pattern-load',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['p', 'l'],
+        key: ['control', 'p', 'l'],
     },
     {
         id: 'pattern-new',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['p', 'n'],
+        key: ['control', 'p', 'n'],
     },
     {
         id: 'pattern-list',
-        ctrl: true,
-        shift: false,
-        alt: false,
-        key: ['p', 'j'],
+        key: ['control', 'p', 'j'],
     },
 
     // -- Help menu shortcuts
     {
         id: 'help-about',
-        ctrl: false,
-        shift: false,
-        alt: false,
         key: [],
     },
     {
         id: 'about',
-        ctrl: false,
-        shift: false,
-        alt: false,
         key: ['F1'],
     },
 
@@ -120,18 +75,12 @@ export default [
     // -- DEV
     {
         id: 'dev-serilize-x',
-        ctrl: true,
-        shift: true,
-        alt: false,
-        key: ['x'],
+        key: ['control', 'shift', 'x'],
     },
 
     {
         id: 'dev-serilize-y',
-        ctrl: true,
-        shift: true,
-        alt: false,
-        key: ['y'],
+        key: ['control', 'shift', 'y'],
     },
 
 ] as  Array<Shortcut>;

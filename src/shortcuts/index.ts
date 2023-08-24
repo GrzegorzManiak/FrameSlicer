@@ -10,6 +10,20 @@ export default class Shortcuts {
     private _actions: Array<{
         [key: string]: () => void;
     }> = [];
+    
+    private _key_display: HTMLElement | null = null;
+    private _current_keys: HTMLElement | null = null;
+    private _closest_shorcuts: HTMLElement | null = null;
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState
+    readonly used_modifiers = ['Alt', 'Control', 'Shift'];
+    readonly disused_keys = [
+        'AltGraph', 'CapsLock', 'FnLock', 
+        'Hyper', 'NumLock', 'ScrollLock',
+        'OS', 'Super', 'Symbol', 'SymbolLock',
+        'Meta', 'Fn'
+    ];
+
 
 
     // -- Private constructor to prevent multiple instances
@@ -19,13 +33,31 @@ export default class Shortcuts {
         this._ensure_unique_ids();
         this._construct_shortcut_map();
         this.start_listening();
+
+        this._key_display = document.createElement('div');
+        this._current_keys = document.createElement('div');
+        this._closest_shorcuts = document.createElement('div');
+
+        this._key_display.setAttribute('id', 'key-display');
+        this._current_keys.setAttribute('id', 'current-keys');
+        this._closest_shorcuts.setAttribute('id', 'closest-shortcuts');
+
+        document.body.appendChild(this._key_display);
+        this._key_display.appendChild(this._current_keys);
+        this._key_display.appendChild(this._closest_shorcuts);
+        this._render_keys_pressed();
+
         log('INFO', 'Shortcuts loaded');
     }
+
+
 
     // -- Encode the shortcuts to a string for storage
     private _encode_shortcuts(): string {
         return JSON.stringify(this._shortcuts);
     }
+
+
 
     // -- Ensure that there are no duplicate ids
     private _ensure_unique_ids(): void {
@@ -38,6 +70,8 @@ export default class Shortcuts {
             ids.push(shortcut.id);
         }
     }
+
+
 
     // -- Construct the shortcut map
     private _construct_shortcut_map() {
@@ -67,6 +101,8 @@ export default class Shortcuts {
         }
     }
     
+
+
     // -- Decode the shortcuts from a string
     private _decode_shortcuts(shortcuts: string): Array<Shortcut> {
         const decoded = JSON.parse(shortcuts);
@@ -111,6 +147,8 @@ export default class Shortcuts {
         return parsed;
     }
 
+
+
     // -- Load the shortcuts from local storage (if any)
     private _load_shortcuts(): void {
         log('INFO', 'Loading shortcuts from local storage');
@@ -120,38 +158,83 @@ export default class Shortcuts {
         log('INFO', 'Shortcuts loaded from local storage');
     }
 
-    private _keys_pressed: Array<string> = [];
-    private _handle_key_press(event: KeyboardEvent): void {
+
+
+    // -- Get the modifier keys (even when no normal keys are pressed)
+    private _get_modifier_keys(event: KeyboardEvent) {
+        // -- The modifier keys
+        const used_modifiers: Array<string> = [];
+
+        const current_key = event.key;
+        this.used_modifiers.forEach((modifier) => {
+            // -- Check if this is a modifier key
+            if (current_key !== modifier) return;
+
+            // -- Check if the modifier is already pressed
+            if (this._keys_pressed.includes(modifier)) return;
+
+            // -- Add the modifier to the modifier pressed
+            this._keys_pressed.push(modifier);
+        });
+
         // -- Check if any modifiers are pressed
-        const modifiers: Array<string> = [];
-        if (event.ctrlKey) modifiers.push('Ctrl');
-        if (event.shiftKey) modifiers.push('Shift');
-        if (event.altKey) modifiers.push('Alt');
+        if (event.ctrlKey) used_modifiers.push('Control');
+        if (event.shiftKey) used_modifiers.push('Shift');
+        if (event.altKey) used_modifiers.push('Alt');
+         
+
+        // -- Add the modifier keys to the modifier pressed
+        used_modifiers.forEach((modifier) => {
+            // -- Check if the modifier is already pressed
+            if (this._keys_pressed.includes(modifier)) return;
+
+            // -- Add the modifier to the modifier pressed
+            this._keys_pressed.push(modifier);
+        });
+    }
 
 
-        // -- Make sure that ctrl | shift | alt are pressed
-        //    or that a Fx key is pressed
+
+    private _keys_pressed: Array<string> = [];
+    private _prev_key_string: string | null = null;
+    private _handle_key_press(event: KeyboardEvent): void {
+     
+        // -- Get the modifier keys
+        this._get_modifier_keys(event);
+
         if (
-            modifiers.length === 0 &&
-            !event.key.startsWith('F')
+            this._keys_pressed.length === 0 &&
+            !event.key.startsWith('F') 
         ) {
             this._keys_pressed = [];
+            this._render_keys_pressed();
             return;
         };
 
   
-        // -- Add the key to the keys pressed (if not already pressed)
-        if (!this._keys_pressed.includes(event.key.toUpperCase()))
-            this._keys_pressed.push(event.key.toUpperCase());
+        // -- Cant be a key thats been pressed before, or a modifier key
+        if (
+            ![...this.disused_keys, ...this.used_modifiers].includes(event.key) &&
+            !this._keys_pressed.includes(event.key.toUpperCase())
+        ) this._keys_pressed.push(event.key.toUpperCase());
 
+        // -- Check if the keys have changed
+        const key_string = this._keys_pressed.join(' ');
+        if (key_string === this._prev_key_string) return;
+        this._prev_key_string = key_string;
 
         // -- Get the shortcut
         let shortcuts: Array<Shortcut> = [];
         let current_map = this._shortcut_map;
-        for (const key of this._keys_pressed) {
+        for (let key of this._keys_pressed) {
 
             // -- Check if the key is in the map
-            if (current_map[key] === undefined) continue;
+            key = key.toUpperCase();
+            if (current_map[key] === undefined) {
+                this._keys_pressed = [];
+                this._render_keys_pressed();
+                return;
+            };
 
             // -- Add the shortcut to the list
             if (Array.isArray(current_map[key])) {
@@ -161,26 +244,119 @@ export default class Shortcuts {
 
             // -- Update the current map
             current_map = current_map[key] as ShortcutMap;
+            this._render_keys_pressed(current_map);
         }
 
 
-        // -- Check if there are any shortcuts with the same modifiers
-        const matching_shortcuts = shortcuts.filter((shortcut) => {
-            if (shortcut.ctrl !== event.ctrlKey) return false;
-            if (shortcut.shift !== event.shiftKey) return false;
-            if (shortcut.alt !== event.altKey) return false;
-            return true;
-        });
-
-
         // -- Check if there are any shortcuts
-        if (matching_shortcuts.length === 0) return;
+        if (shortcuts.length === 0) return;
         this._keys_pressed = [];
-        matching_shortcuts.forEach((shortcut) => {
+        this._render_keys_pressed();
+        shortcuts.forEach((shortcut) => {
             log('INFO', `Shortcut pressed: ${shortcut.id}`);
             if (this._actions[shortcut.id] !== undefined) 
                 this._actions[shortcut.id]();
         });
+    }
+
+
+
+    private _render_keys_pressed(
+        map: ShortcutMap | null = null
+    ): void {
+        // -- Get the pressed keys
+        const keys = this._keys_pressed;
+        
+
+        // -- Check if there are no keys pressed
+        if (keys.length === 0 || map === null) {
+            this._key_display.setAttribute('hidden', '');
+            this._current_keys.innerHTML = '';
+            this._closest_shorcuts.innerHTML = '';
+            this._prev_key_string = null;
+            return;
+        }
+        
+
+        // -- Update the key display
+        this._key_display.removeAttribute('hidden');
+        const elms: Array<HTMLElement> = [];
+        this._current_keys.innerHTML = '';
+        this._closest_shorcuts.innerHTML = '';
+
+
+        // -- Add the keys to the key display
+        keys.forEach((key) => {
+            const elm = document.createElement('div');
+            elm.classList.add('key');
+            elm.innerText = key;
+            elms.push(elm);
+            this._current_keys.appendChild(elm);
+        });
+
+
+        // -- Get the closest shortcuts
+        const shortcuts = this._get_closest_shortcuts(map);
+        shortcuts.forEach((shortcut) => {
+            const elm = document.createElement('s-opt'),
+                title = document.createElement('p'),
+                short = document.createElement('p');
+                
+            elm.classList.add('shortcut');
+            elms.push(elm);
+
+            title.classList.add('title');
+            title.innerText = shortcut.id;
+
+            short.classList.add('shortcut');
+            short.innerText = this.serialize_shortcut(shortcut);
+
+            elm.appendChild(title);
+            elm.appendChild(short);
+
+            this._closest_shorcuts.appendChild(elm);
+        });
+    }
+
+
+
+    private _get_closest_shortcuts(
+        map: ShortcutMap,
+        amount: number = 4,
+    ): Array<Shortcut> {
+        const shortcuts: Array<Shortcut> = [];
+        
+        // -- Check if the map is an array
+        if (Array.isArray(map)) {
+            for (let i = 0; i < amount; i++) {
+                if (map[i] === undefined) continue;
+                shortcuts.push(map[i]);
+            }
+            return shortcuts;
+        }
+
+        // -- Get the keys of the map
+        const keys = Object.keys(map);
+        for (let i = 0; i < amount; i++) {  
+            if (keys[i] === undefined) break;
+            const entry = map[keys[i]];
+
+            // -- If the entry is a map (object) skip
+            if (!Array.isArray(entry)) continue;
+
+            // -- If the entry is an array, add it to the shortcuts
+            const need = amount - shortcuts.length;
+            for (let j = 0; j < need; j++) {
+                if (entry[j] === undefined) continue;
+                shortcuts.push(entry[j]);
+            }
+
+            // -- If there are enough shortcuts, return them
+            if (shortcuts.length === amount) return shortcuts;
+        }
+
+        // -- Return the shortcuts
+        return shortcuts;
     }
 
 
@@ -219,7 +395,14 @@ export default class Shortcuts {
             ) return false
             
             return true;
-        }
+        };
+
+
+        document.addEventListener('keyup', (e) => {
+            // -- Clear the keys pressed
+            this._keys_pressed = [];
+            this._render_keys_pressed();
+        });
     }
 
 
@@ -351,9 +534,6 @@ export default class Shortcuts {
         // -- Make sure the shortcut is valid
         if (
             shortcut.id === undefined ||
-            shortcut.ctrl === undefined ||
-            shortcut.shift === undefined ||
-            shortcut.alt === undefined ||
             shortcut.key === undefined
         ) {
             log('ERROR', 'Invalid shortcut');
@@ -392,15 +572,14 @@ export default class Shortcuts {
         shortcut: Shortcut
     ): string {
         let serialized = '';
-
-        // -- Serialize the modifiers
-        if (shortcut.ctrl) serialized += 'Ctrl + ';
-        if (shortcut.shift) serialized += 'Shift + ';
-        if (shortcut.alt) serialized += 'Alt + ';
-
+        
         // -- Join the keys
         const keys = shortcut.key.join(' + ');
         serialized += keys.toUpperCase();
+
+        serialized = serialized.replace('CONTROL', 'Ctrl');
+        serialized = serialized.replace('SHIFT', 'Shift');
+        serialized = serialized.replace('ALT', 'Alt');
 
         // -- Return the serialized shortcut
         return serialized;

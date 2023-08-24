@@ -338,11 +338,24 @@ export default class Shortcuts {
         // -- Get the keys of the map
         const keys = Object.keys(map);
         for (let i = 0; i < amount; i++) {  
+            // -- If there are enough shortcuts, return them
+            if (shortcuts.length === amount) return shortcuts;
+
+            // -- Make sure the key exists
             if (keys[i] === undefined) break;
             const entry = map[keys[i]];
 
-            // -- If the entry is a map (object) skip
-            if (!Array.isArray(entry)) continue;
+            // -- If the entry is a map (object) add they key to
+            //    progress down this branch
+            if (!Array.isArray(entry)) {
+                const new_shorcut: Shortcut = {
+                    id: 'More shortcuts',
+                    key: [...this._keys_pressed, keys[i]],
+                }
+
+                shortcuts.push(new_shorcut);
+                continue;
+            };
 
             // -- If the entry is an array, add it to the shortcuts
             const need = amount - shortcuts.length;
@@ -350,9 +363,6 @@ export default class Shortcuts {
                 if (entry[j] === undefined) continue;
                 shortcuts.push(entry[j]);
             }
-
-            // -- If there are enough shortcuts, return them
-            if (shortcuts.length === amount) return shortcuts;
         }
 
         // -- Return the shortcuts

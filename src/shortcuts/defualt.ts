@@ -50,7 +50,7 @@ export default [
     // -- Pattern menu shortcuts
     {
         id: 'pattern-load',
-        key: ['control', 'p', 'l'],
+        key: ['control', 'p', 'l', 'o'],
     },
     {
         id: 'pattern-new',

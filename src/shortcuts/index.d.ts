@@ -5,6 +5,8 @@ export interface MenuOption {
 
 export interface Shortcut {
     id: string;
+    clean: string;
+    group: string;
     key: Array<string>;
 }
 

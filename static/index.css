@@ -68,7 +68,7 @@ body {
     background-color: var(--box-color);
     border-radius: var(--box-radius);
 
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -106,8 +106,22 @@ body {
     font-weight: 500;
 }
 
+@keyframes key-display-in {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
 #key-display[hidden] {
-    display: none;
     opacity: 0;
+    display: none;
     pointer-events: none;
+}
+
+#key-display:not([hidden]) {
+    animation: key-display-in 0.5s ease forwards;
 }

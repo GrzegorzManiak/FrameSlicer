@@ -315,6 +315,10 @@ export default class Shortcuts {
             elm.appendChild(short);
 
             this._closest_shorcuts.appendChild(elm);
+            elm.onclick = () => {
+                if (this._actions[shortcut.id] !== undefined) 
+                    this._actions[shortcut.id]();
+            };
         });
     }
 
@@ -322,7 +326,7 @@ export default class Shortcuts {
 
     private _get_closest_shortcuts(
         map: ShortcutMap,
-        amount: number = 4,
+        amount: number = 6,
     ): Array<Shortcut> {
         const shortcuts: Array<Shortcut> = [];
         

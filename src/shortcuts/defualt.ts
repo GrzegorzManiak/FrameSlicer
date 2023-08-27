@@ -19,6 +19,7 @@ export default [
         clean: 'New',
         group: 'File',
         key: ['control', 'n'],
+        break: 'after'
     },
     {
         id: 'file-list',
@@ -52,6 +53,7 @@ export default [
         clean: 'Zoom Out',
         group: 'View',
         key: ['control', '-'],
+        break: 'after'
     },
     {
         id: 'view-fullscreen',
@@ -90,16 +92,27 @@ export default [
     
     // -- Help menu shortcuts
     {
-        id: 'help-about',
-        clean: 'About',
-        group: 'help',
+        id: 'help-contact',
+        clean: 'Contact',
+        group: 'Help',
         key: [],
     },
     {
-        id: 'about',
+        id: 'help-about',
         clean: 'About',
-        group: 'help',
+        group: 'Help',
         key: ['F1'],
+    },
+    {
+        id: 'help-version',
+        clean: 'Version',
+        group: 'Help',
+        break: 'before'
+    },
+    {
+        id: 'help-licenses',
+        clean: 'Licenses',
+        group: 'Help',
     },
 
 

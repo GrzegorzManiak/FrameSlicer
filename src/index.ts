@@ -7,12 +7,13 @@ import { handle_controlls } from './view_controlls';
 
 import Line from './line';
 import { init_zoom } from './zoom';
-import { assign_actions } from './menu';
+import { assign_actions, init_menu } from './menu';
 import Shortcuts from './shortcuts';
 
 
 // -- Stage
-Shortcuts.get_instance();
+const si = Shortcuts.get_instance();
+
 let [width, height] = get_client_size();
 export const _stage = new konva.Stage({
     container: 'canvas-container',
@@ -23,7 +24,10 @@ export const _stage = new konva.Stage({
 export const _layer = new konva.Layer();
 _stage.add(_layer);
 init_zoom();
+
+si.reset_shortcuts();
 assign_actions();
+init_menu();
 
 
 const line_width = 500;

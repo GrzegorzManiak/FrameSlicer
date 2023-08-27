@@ -135,7 +135,7 @@ export default class Shortcuts {
             
             // -- Go trough the keys
             let current_map = this._shortcut_map;
-            for (let i = 0; i < shortcut.key.length; i++) {
+            for (let i = 0; i < shortcut.key?.length || 0; i++) {
 
                 // -- Get the key
                 const key = shortcut.key[i].toUpperCase();
@@ -206,7 +206,7 @@ export default class Shortcuts {
         // -- Find the missing shortcuts and add them to the parsed array
         const def_ids = def_shortcuts.map((shortcut) => shortcut.id);
         for (const def_id of def_ids) {
-            
+
             // -- Check if the shortcut is already in the parsed array
             const found = parsed.find((shortcut) => shortcut.id === def_id);
             if (found !== undefined) continue;
@@ -627,18 +627,25 @@ export default class Shortcuts {
      * 
      * @returns {string} The serialized shortcut
      */
-    public serialize_shortcut(
+    public static serialize_shortcut(
         shortcut: Shortcut
     ): string {
         let serialized = '';
         
         // -- Join the keys
+        if (
+            shortcut.key === undefined ||
+            shortcut.key.length === 0
+        ) return 'None';
         const keys = shortcut.key.join(' + ');
         serialized += keys.toUpperCase();
 
         serialized = serialized.replace('CONTROL', 'Ctrl');
         serialized = serialized.replace('SHIFT', 'Shift');
         serialized = serialized.replace('ALT', 'Alt');
+
+        // -- If theres nothing in the serialized string, return 'None'
+        if (serialized === '') return 'None';
 
         // -- Return the serialized shortcut
         return serialized;
@@ -677,5 +684,17 @@ export default class Shortcuts {
     public set render_keys(value: boolean) {
         this._render_keys = value;
         render_pressed_keys(this);
+    }
+
+
+
+    /**
+     * @name shortcuts
+     * Getter for the shortcuts
+     * 
+     * @returns {Array<Shortcut>} The shortcuts
+     */
+    public get shortcuts(): Array<Shortcut> {
+        return this._shortcuts;
     }
 }

@@ -8,6 +8,7 @@ export interface Shortcut {
     clean: string;
     group: string;
     key: Array<string>;
+    break?: 'before' | 'after';
 }
 
 export interface ShortcutMap {

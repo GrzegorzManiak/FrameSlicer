@@ -66,7 +66,7 @@ export const render_pressed_keys = (
         title.innerText = `${shortcut.group} - ${shortcut.clean}`
 
         short.classList.add('shortcut');
-        short.innerText = si.serialize_shortcut(shortcut);
+        short.innerText = Shortcuts.serialize_shortcut(shortcut);
 
         elm.appendChild(title);
         elm.appendChild(short);

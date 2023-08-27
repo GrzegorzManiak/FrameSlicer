@@ -36,6 +36,7 @@ export type Anchor = {
     min_y: number,
     handle_y: number,
     handle_neg_y: number,
+    position: { x: number, y: number }
 }
 
 export type Lines = Array<Line>;

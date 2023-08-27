@@ -451,20 +451,20 @@ export default class Shortcuts {
             ) return true;
 
             // -- Allow reset
-            if (
+            else if (
                 e.ctrlKey &&
                 e.shiftKey &&
                 e.key === 'R'
             ) return true;
             
             // -- If its a modifier key, prevent default
-            if (
+            else if (
                 e.ctrlKey || 
                 e.shiftKey || 
                 e.altKey
             ) return false;
             
-            return true;
+            else return true;
         };
 
 

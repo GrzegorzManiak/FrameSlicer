@@ -77,11 +77,16 @@ export const draw_grid = (
 
     
     // -- Get the layer
-    const layer = line._layer
+    const layer = line._layer;
+
+    let x_shapes: Array<konva.Line> = [],
+        y_shapes: Array<konva.Line> = [],
+        x_texts: Array<konva.Text> = [],
+        y_texts: Array<konva.Text> = [];
 
     // -- Get the starting point
-    const start_x = line._bounding_box.x(),
-        start_y = line._bounding_box.y() + line._bounding_box.height(),
+    let start_x = line.position.x,
+        start_y = line.position.y + line.config.size.height,
         x_lines = (line.height / 100) + extra,
         y_lines = (line.width / 100) + extra,
         x_lenght = x_lines * grid_size * 10,
@@ -96,13 +101,17 @@ export const draw_grid = (
             start_x - padding, 
             start_y - (i * 10 * grid_size),
             y_lenght
-        ),
-            text = new konva.Text({
-                x: start_x - padding - 20,
-                y: start_y - (i * 10 * grid_size),
-                fill: color,
-                text: `${i * 10}mm`,
-            });
+        );
+
+        const text = new konva.Text({
+            x: start_x - padding - 20,
+            y: start_y - (i * 10 * grid_size),
+            fill: color,
+            text: `${i * 10}mm`,
+        });
+
+        x_shapes.push(x);
+        x_texts.push(text);
 
         // -- Center the text
         text.offsetX(text.width() / 2);
@@ -121,13 +130,16 @@ export const draw_grid = (
             start_x + (i * 10 * grid_size), 
             start_y + padding, 
             x_lenght
-        ),
-            text = new konva.Text({
-                x: start_x + (i * 10 * grid_size),
-                y: start_y + padding + 10,
-                fill: color,
-                text: `${i * 10}mm`,
-            });
+        )
+        const text = new konva.Text({
+            x: start_x + (i * 10 * grid_size),
+            y: start_y + padding + 10,
+            fill: color,
+            text: `${i * 10}mm`,
+        });
+
+        y_texts.push(text);
+        y_shapes.push(y);
 
         // -- Center the text
         text.offsetX(text.width() / 2);
@@ -137,4 +149,75 @@ export const draw_grid = (
         layer.add(y);
     }
 
+
+    // -- This is a way to reduce the amount of resize events
+    //    that we have to process, it will wait for the user
+    //    to stop resizing the window before executing the function
+    let resize_timeout;
+    window.addEventListener('resize', () => {
+        if (resize_timeout) clearTimeout(resize_timeout);
+        resize_timeout = setTimeout(() => resize(), 100);
+    });
+
+
+    // -- Resize listener
+    const resize = () => {
+        
+        start_x = line.position.x;
+        start_y = line.position.y + line.config.size.height;
+        x_lines = (line.height / 100) + extra;
+        y_lines = (line.width / 100) + extra;
+        x_lenght = x_lines * grid_size * 10;
+        y_lenght = y_lines * grid_size * 10;
+
+
+        if (render_x) for ( 
+            let i = 0; i < x_lines; i++
+        ) {
+            const x = x_shapes[i],
+                text = x_texts[i];
+
+            const sx = start_x + (i * 10 * grid_size), 
+                sy = start_y + padding;
+                
+            x.points([
+                sx, sy,
+                sx + y_lenght, sy
+            ]);
+
+            text.position({
+                x: start_x - padding - 20,
+                y: start_y - (i * 10 * grid_size),
+            });
+
+            // -- Center the text
+            text.offsetX(text.width() / 2);
+            text.offsetY(text.height() / 2);
+        }
+
+
+        if (render_y) for (
+            let i = 0; i < y_lines; i++
+        ) {
+            const y = y_shapes[i],
+                text = y_texts[i];
+
+            const sx = start_x - padding,
+                sy = start_y - (i * 10 * grid_size);
+
+            y.points([
+                sx, sy,
+                sx, sy - x_lenght
+            ]);
+
+            text.position({
+                x: start_x + (i * 10 * grid_size),
+                y: start_y + padding + 10,
+            });
+
+            // -- Center the text
+            text.offsetX(text.width() / 2);
+            text.offsetY(text.height() / 2);
+        }
+    };
 };

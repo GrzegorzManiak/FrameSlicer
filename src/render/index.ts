@@ -29,20 +29,22 @@ const render_line_points = (
         path += `${x} ${y} `;
     });
 
+    
     // -- Close the line
     const points = [
-        line._bounding_box.x() + line._bounding_box.width(),
-        line.config.cutting_depth + line._bounding_box.y(),
+        line.position.x + line.width,
+        line.config.cutting_depth + line.position.y,
 
-        line._bounding_box.x() + line._bounding_box.width(),
-        line._bounding_box.height() + line._bounding_box.y(),
+        line.position.x + line.width,
+        line.height + line.position.y,
 
-        line._bounding_box.x(),
-        line._bounding_box.height() + line._bounding_box.y(),
+        line.position.x,
+        line.height + line.position.y,
 
-        line._bounding_box.x(),
-        line.config.cutting_depth + line._bounding_box.y(),
+        line.position.x,
+        line.config.cutting_depth + line.position.y,
     ]
+
 
     // -- Set the points
     points.forEach((point, index) => {

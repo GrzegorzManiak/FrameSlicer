@@ -18,6 +18,8 @@ export default class Line {
     private _anchors: Array<Anchor>;
     private _raw_path: string;
 
+    private _position: { x: number, y: number } = { x: 0, y: 0 };
+
     public constructor(
         layer: konva.Layer,
         config: LineConfiguration,
@@ -127,11 +129,18 @@ export default class Line {
         this._colors = config.colors;
         this._raw_path = '';
 
+        // -- Set the position (top left)
+        this._position = {
+            x: this._bounding_box.position().x,
+            y: this._bounding_box.position().y,
+        };
+
 
         // -- Initialize the anchors
         this._anchors = [];
         if (init_anchors)
         this._init_anchors();
+        Line._resize_listener(this);
     }
 
 
@@ -192,6 +201,7 @@ export default class Line {
             min_y: 0,
             handle_y: 0,
             handle_neg_y: 0,
+            position: { x, y },
         };
 
 
@@ -237,7 +247,7 @@ export default class Line {
             this._add_anchor(
                 offset_left + anchor_ammount * i,
                 offset_top - this._config.y_offset,
-            )
+            );
         }
     }
 
@@ -286,6 +296,8 @@ export default class Line {
             y: this._config.achor_position === 'bottom' ? anchor.handle_y : anchor.handle_neg_y
         });
 
+        anchor.position = this.get_anchor_percent(anchor);
+
         // -- Return the anchor
         return anchor;
     };
@@ -309,13 +321,13 @@ export default class Line {
         y: number,
     } {
         // -- Bounding box
-        const bounding_box_pos = this._bounding_box.position(),
-            bounding_box_size = this._bounding_box.size();
+        const pos = this.position,
+            size = this.config.size;
 
         // -- Anchor center
         const anchor_center = {
-            x: bounding_box_pos.x + x_percent * bounding_box_size.width,
-            y: bounding_box_pos.y + y_percent * bounding_box_size.height,
+            x: pos.x + x_percent * size.width,
+            y: (pos.y - this.config.y_offset) + y_percent * size.height,
         };
 
         // -- Return the anchor center
@@ -350,7 +362,7 @@ export default class Line {
         // -- Add the anchor
         const anchor = this._add_anchor(
             anchor_center.x,
-            this._bounding_box.position().y
+            this.position.y
         );
 
         anchor.shape.position({
@@ -366,7 +378,7 @@ export default class Line {
 
 
     /**
-     * @name get_anchor_precent
+     * @name get_anchor_percent
      * Gets the position of an anchor in percent
      * 
      * @param {Anchor} anchor - The anchor to get the position of
@@ -376,7 +388,7 @@ export default class Line {
      *    y: number
      * }} The position of the anchor in percent
      */
-    public get_anchor_precent(
+    public get_anchor_percent(
         anchor: Anchor
     ): { x: number, y: number } {
         // -- Handle
@@ -384,8 +396,8 @@ export default class Line {
             handle_size = anchor.shape.size();
 
         // -- Bounding box
-        const bounding_box_pos = this._bounding_box.position(),
-            bounding_box_size = this._bounding_box.size();
+        const pos = this.position,
+            size = this.config.size;
 
         // -- Handle center
         const handle_center = { 
@@ -393,14 +405,11 @@ export default class Line {
             y: handle_pos.y + handle_size.height / 2,
         }
 
-        // -- Return the precent
-        return { x: Math.abs(
-            (handle_center.x - bounding_box_pos.x) / 
-            bounding_box_size.width
-        ), y: Math.abs(
-            (handle_center.y - bounding_box_pos.y) /
-            bounding_box_size.height
-        ) };
+        // -- Return the percent
+        return {
+            x: Math.abs((handle_center.x - pos.x) / size.width), 
+            y: Math.abs((handle_center.y - (pos.y - this.config.y_offset)) / size.height) 
+        };
     }
 
 
@@ -413,7 +422,7 @@ export default class Line {
      * @returns {void} Nothing
      */
     public sort_anchors(
-    ) {
+    ): void {
         // -- Sort the anchors
         this._anchors.sort((a, b) => {
             const a_pos = a.shape.position(),
@@ -449,11 +458,12 @@ export default class Line {
      * Serializes the instance state into JSON format
      * @returns {string} The serialized JSON representation of the instance state
      */
-    public serialize(): string {
+    public serialize(
+    ): string {
         const serialized_state = {
             config: this._config,
             anchors: this._anchors.map(anchor => (
-                this.get_anchor_precent(anchor)
+                this.get_anchor_percent(anchor)
             ))
         };
 
@@ -521,7 +531,10 @@ export default class Line {
      * @param {konva.Layer} layer - The Konva layer to add the deserialized line to
      * @returns {Line} The deserialized instance of the Line class
      */
-    public static deserialize(serialized_data: string, layer: konva.Layer): Line {
+    public static deserialize(
+        serialized_data: string, 
+        layer: konva.Layer
+    ): Line {
         
         // -- Parse the serialized data
         const data = Line.parse_serialized_data(serialized_data);
@@ -620,6 +633,16 @@ export default class Line {
         return this._config; }
 
 
+
+    /**
+     * @name position
+     * @description Gets the position of the line
+     * @returns {{x: number, y: number}} The position of the line
+     */
+    public get position(): { x: number, y: number } {
+        return this._position; }
+
+
     
     //                                //
     // ------ Static Functions ------ //
@@ -655,9 +678,8 @@ export default class Line {
 
 
             // -- Make sure that the anchor is within the line
-            const bounding_box_pos = line._bounding_box.position(),
-                max_y = bounding_box_pos.y + line.config.cutting_depth,
-                min_y = bounding_box_pos.y;
+            const min_y = anchor.min_y,
+                max_y = anchor.max_y;
 
 
             // -- Get the anchors X position from the handle
@@ -682,6 +704,7 @@ export default class Line {
 
             // -- Render the line
             last_mouse_pos = { x: e.evt.clientX, y: e.evt.clientY };
+            anchor.position = line.get_anchor_percent(anchor);
             render_line(line);
         });
 
@@ -729,7 +752,99 @@ export default class Line {
             });
 
             // -- Render the line
+            anchor.position = line.get_anchor_percent(anchor);
             render_line(line);
         });
     };
+
+
+
+    /**
+     * @name _resize_listener
+     * Handles the resize events for the line making
+     * sure that the line is always centered and that 
+     * nothing is out of bounds
+     * 
+     * @param {Line} line - The line to add the listener to
+     * @param {number} wait - The time to wait before executing the function
+     * 
+     * @returns {void} Nothing
+     */
+    public static _resize_listener(
+        line: Line,
+        wait: number = 100
+    ): void {   
+
+        // -- This is a way to reduce the amount of resize events
+        //    that we have to process, it will wait for the user
+        //    to stop resizing the window before executing the function
+        let resize_timeout;
+        window.addEventListener('resize', () => {
+            if (resize_timeout) clearTimeout(resize_timeout);
+            resize_timeout = setTimeout(() => resize(), wait);
+        });
+
+
+        // -- Function responsible for resizing the line
+        //    and all of it's elements
+        const resize = () => {
+            // -- Get the new size
+            const [width, height] = get_client_size();
+
+            // -- Get the bounding box position
+            const bounding_box_size = line._bounding_box.size();
+
+            // -- Get the offset
+            const offset_left = width / 2 - bounding_box_size.width / 2,
+                offset_top = height / 2 - bounding_box_size.height / 2;
+
+            // -- Set the position
+            line._bounding_box.position({
+                x: offset_left,
+                y: offset_top,
+            });
+
+            // -- Set the position
+            line._position = line._bounding_box.position();
+
+
+            // -- Set the handle position
+            line._anchors.forEach(anchor => {
+                // -- Offset the y position
+                const y = line.position.y - line.config.y_offset;
+
+                // -- Set the bounds
+                anchor.max_y = y + line.config.cutting_depth;
+                anchor.min_y = y;
+                anchor.handle_y = y + line.config.cutting_depth + line.config.handle_padding;
+                anchor.handle_neg_y = y - line.config.handle_padding - anchor.handle.height();
+        
+                    
+
+                // -- Get the anchor position
+                const pos = line._calculate_anchor_position(
+                    anchor.position.x,
+                    anchor.position.y
+                );
+
+
+                // -- Set the anchor position
+                anchor.handle.position({
+                    x: pos.x - anchor.handle.width() / 2,
+                    y: line.config.achor_position === 'bottom' ? 
+                        anchor.handle_y : anchor.handle_neg_y
+                });
+
+
+                // -- Set the anchor position
+                anchor.shape.position({
+                    x: pos.x - anchor.shape.width() / 2,
+                    y: pos.y - anchor.shape.height() / 2,
+                }); 
+            });
+
+            // -- Render the line
+            render_line(line);
+        };
+    }
 }

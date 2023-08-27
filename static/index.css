@@ -23,8 +23,10 @@
     --toast_background: #161616;
     --margins: 10px;
     --int-box-padding: 10px;
+    --outline-width: 2px;
 
-    --menu-box-width: 250px;
+    --menu-box-width: 300px;
+    --tool-box-width: 225px;
     --popup-box-width: 400px;
 
 

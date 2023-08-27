@@ -107,14 +107,44 @@ export default [
         id: 'help-version',
         clean: 'Version',
         group: 'Help',
-        break: 'before'
+        break: 'before',
+        key: [],
     },
     {
         id: 'help-licenses',
         clean: 'Licenses',
         group: 'Help',
+        key: [],
     },
 
+    // -- Tools
+    {
+        id: 'tools-select',
+        clean: 'Select',
+        group: 'Tools',
+        key: ['control', 'shift', 's'],
+    },
+
+    {
+        id: 'tools-move',
+        clean: 'Move',
+        group: 'Tools',
+        key: ['control', 'shift', 'm'],
+    },
+
+    {
+        id: 'tools-anchor-add',
+        clean: 'Add Anchor',
+        group: 'Tools',
+        key: ['control', 'shift', 'a'],
+    },
+
+    {
+        id: 'tools-anchor-remove',
+        clean: 'Remove Anchor',
+        group: 'Tools',
+        key: ['control', 'shift', 'f'],
+    },
 
     // -- DEV
     {

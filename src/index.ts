@@ -9,6 +9,7 @@ import Line from './line';
 import { init_zoom } from './zoom';
 import { assign_actions, init_menu } from './menu';
 import Shortcuts from './shortcuts';
+import { load_tools } from './tools';
 
 
 // -- Stage
@@ -24,9 +25,9 @@ export const _stage = new konva.Stage({
 export const _layer = new konva.Layer();
 _stage.add(_layer);
 init_zoom();
-
 si.reset_shortcuts();
 assign_actions();
+load_tools();
 init_menu();
 
 

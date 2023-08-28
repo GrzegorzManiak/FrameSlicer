@@ -66,23 +66,12 @@ export const init_menu = () => {
             continue;
         }  
 
-
         // -- Else create the group and the adjacent elements
-        const group_elm = document.createElement('div');
-        group_elm.classList.add('selector');
-        group_elm.setAttribute('menu-bar', group);
-
-        const title_elm = document.createElement('p');
-        title_elm.innerText = item.group;
-        group_elm.appendChild(title_elm);
-
-        const spacer = document.createElement('div');
-        spacer.classList.add('s-spacing');
-        group_elm.appendChild(spacer);
-
-        const options = document.createElement('div');
-        options.classList.add('s-options');
-        spacer.appendChild(options);
+        const { 
+            group_elm, 
+            title_elm, 
+            options_elm 
+        } = create_dropdown(item.group);
 
         // -- Add the group to the menu bar
         menu_bar.appendChild(group_elm);
@@ -91,7 +80,7 @@ export const init_menu = () => {
         groups[group] = {
             parent_elm: group_elm,
             title_elm,
-            items_elm: options,
+            items_elm: options_elm,
             shortcuts: [item],
         };
     }
@@ -140,6 +129,7 @@ const create_option = (
 
     return opt_elm;
 };
+
 
 
 export const create_dropdown = (

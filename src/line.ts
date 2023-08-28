@@ -171,6 +171,7 @@ export default class Line {
         this._init_anchors();
         Line._resize_listener(this);
         this._ghost_anchor_listener();
+        this._remove_anchor_listener();
     }
 
 
@@ -677,6 +678,104 @@ export default class Line {
     //                                //
     // ------ Static Functions ------ //
     //                                //
+
+
+
+    /**
+     * @name _remove_anchor_listener
+     * This function makes sure that the corect
+     * tool is selected that allows the user to
+     * remove anchors
+     * 
+     * @returns {void} Nothing
+     */
+    private _remove_anchor_listener(
+    ): void {
+        // -- Helper function to determine if the remove tool is active
+        let active = get_active_tool()?.tool === 'anchor-remove';
+        append_listener((tool: ToolObject) => {
+            if (!tool) active = false;
+            else active = tool.tool === 'anchor-remove';
+        });
+
+        // -- Mouse down listener
+        this._layer.on('mousedown', (e) => {
+            // -- Make sure that the tool is active
+            if (!active) return;
+
+            // -- Remove the anchor
+            this._remove_anchor();
+        });
+    }
+
+
+
+    /**
+     * @name _remove_anchor
+     * Finds the closest anchor to the mouse
+     * and removes it 
+     * 
+     * @returns {void} Nothing
+     */
+    private _remove_anchor(
+    ): void {
+        // -- Get the mouse position
+        const mouse_pos = this._layer.getStage().getPointerPosition();
+
+        // -- Get all the anchor positions
+        const positions = this._anchors.map(anchor => {
+            const handle_pos = anchor.handle.position(),
+                handle_size = anchor.handle.size();
+
+            return {
+                top: handle_pos.y,
+                bottom: handle_pos.y + handle_size.height,
+                left: handle_pos.x,
+                right: handle_pos.x + handle_size.width,
+            }
+        });
+
+        // -- Find the closest anchor
+        let closest_anchor = null;
+        positions.forEach((position, index) => {
+            // -- If the closest anchor is set, return
+            //    as we already found the closest anchor
+            if (closest_anchor) return;
+
+            // -- CHeck if the mouse is within the bounds
+            if (
+                mouse_pos.x < position.left ||
+                mouse_pos.x > position.right ||
+                mouse_pos.y < position.top ||
+                mouse_pos.y > position.bottom
+            ) return;
+            
+            // -- Set the closest anchor
+            closest_anchor = this._anchors[index];
+        });
+
+
+        // -- Check if the closest anchor is within the bounds
+        const anchor_index = this._anchors.indexOf(closest_anchor);
+        if (anchor_index === -1) return;
+
+        // -- if this is a Y line, make sure that the anchor
+        //    is not the first or last anchor
+        if (
+            this._config.is_y_line &&
+            (anchor_index === 0 || anchor_index === this._anchors.length - 1)
+        ) return log('WARN', 'Unable to remove the first or last anchor of a Y line');
+
+
+        // -- Remove the anchor
+        log('INFO', `Removing anchor at index ${anchor_index}`);
+        this._anchors[anchor_index].shape.destroy();
+        this._anchors[anchor_index].handle.destroy();
+        this._anchors[anchor_index].line.destroy();
+        this._anchors.splice(anchor_index, 1);
+        this.sort_anchors();
+        render_line(this);
+    }
 
 
 

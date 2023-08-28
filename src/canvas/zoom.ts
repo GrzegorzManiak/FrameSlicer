@@ -1,6 +1,6 @@
-import Shortcuts from './shortcuts';
-import { _layer, _stage } from './index';
-import { append_listener, get_active_tool } from './tools/loader';
+import Shortcuts from '../shortcuts';
+import { _layer, _stage } from '../index';
+import { append_listener, get_active_tool } from '../tools/loader';
 import { KonvaEventObject } from 'konva/lib/Node';
 
 // -- Zoom 
@@ -134,9 +134,11 @@ export const init_zoom = (
 ) => {
     // -- Load the shortcuts
     const si = Shortcuts.get_instance();
+
+    // -- Disable scroll when the move tool is not the active tool
     append_listener((tool) => _scroll_enabled = tool.tool === 'move');
 
-    // -- Buttons
+    // -- Gets the current zoom value ensuring it's a number
     const get_cur = () => {
         // -- Ensure the zoom level is a number
         let zoom = parseFloat(zoom_level.value);
@@ -164,7 +166,6 @@ export const init_zoom = (
     _stage.on('wheel', (e) => scroll_listener(
         e, change_ammount, min_zoom, max_zoom));
 
-
-    // -- Zoom to fit
+    // -- Reset zoom
     set_zoom(1);
 };

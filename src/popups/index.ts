@@ -1,4 +1,4 @@
-import { Popup, PopupButton, PopupReturns } from './index.d';
+import { Popup, PopupButton, PopupReturns } from '.';
 import { log } from '../log';
 
 

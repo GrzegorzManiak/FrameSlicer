@@ -1,5 +1,5 @@
-import { create_popup } from '../../popup';
-import { create_input_group, popup_input } from '../../popup/inputs';
+import { create_popup } from '../../popups';
+import { create_input_group, popup_input } from '../../popups/inputs';
 
 let open = false;
 

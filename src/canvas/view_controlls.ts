@@ -1,5 +1,5 @@
 import konva, {} from 'konva';
-import { append_listener, get_active_tool } from './tools/loader';
+import { append_listener, get_active_tool } from '../tools/loader';
 
 const scale_by = 1.015;
 

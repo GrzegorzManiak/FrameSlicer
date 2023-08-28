@@ -3,10 +3,10 @@ import { get_client_size } from './aux';
 import { Colors, LineConfiguration } from './index.d';
 import { render_line } from './render';
 import { draw_grid } from './render/ruler';
-import { handle_controlls } from './view_controlls';
+import { handle_controlls } from './canvas/view_controlls';
 
 import Line from './line';
-import { init_zoom } from './zoom';
+import { init_zoom } from './canvas/zoom';
 import { assign_actions, init_menu } from './menu';
 import Shortcuts from './shortcuts';
 import { load_tools } from './tools';

@@ -24,6 +24,7 @@ export const _stage = new konva.Stage({
 // -- Main Layer
 export const _layer = new konva.Layer();
 _stage.add(_layer);
+
 init_zoom();
 si.reset_shortcuts();
 assign_actions();

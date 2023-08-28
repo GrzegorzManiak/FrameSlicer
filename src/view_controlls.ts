@@ -1,4 +1,5 @@
 import konva, {} from 'konva';
+import { append_listener, get_active_tool } from './tools/loader';
 
 const scale_by = 1.015;
 
@@ -17,35 +18,6 @@ const get_distance = (p1, p2) => Math.sqrt(
 export function handle_controlls(stage: konva.Stage) {
     let last_center = null;
     let last_dist = 0;
-        
-
-
-    const zoom_stage = (event) => {
-        event.evt.preventDefault();
-        const old_scale = stage.scaleX();
-
-        const { 
-            x: pointerX, 
-            y: pointerY 
-        } = stage.getPointerPosition();
-
-        const mouse_point_to = {
-            x: (pointerX - stage.x()) / old_scale,
-            y: (pointerY - stage.y()) / old_scale,
-        };
-
-        const new_scale = event.evt.deltaY > 0 ? old_scale * scale_by : old_scale / scale_by;
-        stage.scale({ x: new_scale, y: new_scale });
-
-        const newPos = {
-            x: pointerX - mouse_point_to.x * new_scale,
-            y: pointerY - mouse_point_to.y * new_scale,
-        }
-
-        stage.position(newPos);
-        stage.batchDraw();
-    }
-
 
 
     const handle_touch = (e) => {
@@ -112,8 +84,14 @@ export function handle_controlls(stage: konva.Stage) {
 
 
     // -- Event listeners --
-    stage.draggable(!is_touch_enabled());
-    stage.on('wheel', zoom_stage);
+    append_listener((tool) => {
+        if (tool.tool === 'move') stage.draggable(true && !is_touch_enabled());
+        else stage.draggable(false);
+    });
+
+    if (get_active_tool().tool === 'move') stage.draggable(true && !is_touch_enabled());
+    else stage.draggable(false);
+
     stage.on('touchstart', handle_touch);
     stage.on('touchmove', handle_touch);
     stage.on('touchend', touch_end);

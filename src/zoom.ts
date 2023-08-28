@@ -1,5 +1,7 @@
 import Shortcuts from './shortcuts';
-import { _stage } from './index';
+import { _layer, _stage } from './index';
+import { append_listener, get_active_tool } from './tools/loader';
+import { KonvaEventObject } from 'konva/lib/Node';
 
 // -- Zoom 
 const zoom_plus = document.querySelector('.zoom-in') as HTMLElement,
@@ -8,6 +10,8 @@ const zoom_plus = document.querySelector('.zoom-in') as HTMLElement,
 
 if (!zoom_plus || !zoom_minus || !zoom_level
 ) throw new Error('Missing zoom elements');
+
+export let _scroll_enabled = get_active_tool()?.tool === 'move';
 
 
 
@@ -49,7 +53,66 @@ export const set_zoom = (
     });
 
     _stage.batchDraw();
+}
 
+
+
+/**
+ * @name scroll_listener
+ * Listens for scroll events and zooms in/out
+ * 
+ * @param {KonvaEventObject<WheelEvent>} e - The scroll event
+ * @param {number} [change_ammount=0.05] - The ammount to change the zoom by
+ * @param {number} [min_zoom=0.25] - The minimum zoom level
+ * @param {number} [max_zoom=2] - The maximum zoom level
+ * 
+ * @returns {void} Nothing
+ */
+export const scroll_listener = (
+    e: KonvaEventObject<WheelEvent>,
+    change_ammount: number = 0.05,
+    min_zoom: number = 0.25,
+    max_zoom: number = 2,
+) => {
+    // -- Ensure the scroll is enabled
+    if (!_scroll_enabled) return;
+
+    e.evt.preventDefault();
+    const old_scale = _stage.scaleX();
+
+    const { 
+        x: pointerX, 
+        y: pointerY 
+    } = _stage.getPointerPosition();
+
+    const mouse_point_to = {
+        x: (pointerX - _stage.x()) / old_scale,
+        y: (pointerY - _stage.y()) / old_scale,
+    };
+
+    let scale_by = change_ammount + 1,
+        new_scale = e.evt.deltaY > 0 ? 
+            old_scale * scale_by : 
+            old_scale / scale_by;
+
+    // -- Clamp zoom value
+    if (new_scale < min_zoom) new_scale = min_zoom;
+    if (new_scale > max_zoom) new_scale = max_zoom;
+
+    // -- Update zoom level rounded to 2 decimals
+    zoom_level.value = `${Math.round(new_scale * 100) / 100}`;
+
+    _stage.scale({ 
+        x: new_scale, 
+        y: new_scale 
+    });
+
+    _stage.position({
+        x: pointerX - mouse_point_to.x * new_scale,
+        y: pointerY - mouse_point_to.y * new_scale,
+    });
+
+    _stage.batchDraw();
 }
 
 
@@ -71,6 +134,7 @@ export const init_zoom = (
 ) => {
     // -- Load the shortcuts
     const si = Shortcuts.get_instance();
+    append_listener((tool) => _scroll_enabled = tool.tool === 'move');
 
     // -- Buttons
     const get_cur = () => {
@@ -96,20 +160,9 @@ export const init_zoom = (
     zoom_level.addEventListener('change', () => 
         set_zoom(get_cur(), min_zoom, max_zoom));
 
-
     // -- Scroll
-    _stage.on('wheel', (e) => {
-        // -- Get the zoom level
-        const current = parseFloat(_stage.scaleX().toFixed(2));
-
-        // -- Calculate the new zoom level
-        let new_zoom = current;
-        if (e.evt.deltaY < 0) new_zoom = Math.min(max_zoom, current + change_ammount);
-        else new_zoom = Math.max(min_zoom, current - change_ammount);
-
-        // -- Set the new zoom level
-        set_zoom(new_zoom, min_zoom, max_zoom);
-    });
+    _stage.on('wheel', (e) => scroll_listener(
+        e, change_ammount, min_zoom, max_zoom));
 
 
     // -- Zoom to fit

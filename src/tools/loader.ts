@@ -7,6 +7,7 @@ import { Tool, ToolObject } from './index.d';
 
 let _tools: Array<ToolObject> = [];
 let _active_tool = -1;
+let _callbacks: Array<(tool: ToolObject) => void> = [];
 
 
 
@@ -121,8 +122,44 @@ export const set_state = (
     tool.elem.setAttribute('tool-selected', '');
     tool.active = true;
     _active_tool = _tools.indexOf(tool);
+
+    // -- Execute the listeners
+    exceute_listeners(tool);
 };
 
+
+
+/**
+ * @name append_listener
+ * Appends a listener that get called once
+ * the active tool is changed.
+ * 
+ * @param {(tool: ToolObject) => void} callback - The callback to call
+ * 
+ * @returns {void} - Nothing
+ */
+export const append_listener = (
+    callback: (tool: ToolObject) => void
+) => {
+    _callbacks.push(callback);
+};
+
+
+
+/**
+ * @name exceute_listeners
+ * Executes all the listeners that are appended
+ * to the tool loader.
+ * 
+ * @param {ToolObject} tool - The currently selected tool
+ * 
+ * @returns {void} - Nothing
+ */
+export const exceute_listeners = (
+    tool: ToolObject = get_active_tool()
+) => {
+    _callbacks.forEach((callback) => callback(tool));
+};
 
 
 /**

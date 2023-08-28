@@ -894,7 +894,10 @@ export default class Line {
                 x_percent = Math.abs((mouse_pos.x - this.position.x) / this.width);
 
             // -- Add the anchor
-            const anchor = this.add_anchor(x_percent);
+            const anchor = this.add_anchor(
+                x_percent,
+                this._config.is_y_line ? 0.5 : 0
+            );
             Line._set_anchor_to_mouse(this, anchor, e);
             this.sort_anchors();
         }

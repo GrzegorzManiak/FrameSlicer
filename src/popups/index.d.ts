@@ -19,6 +19,7 @@ export interface Popup {
     auto_close: boolean;
     close_button: boolean;
     on_close?: () => void;
+    on_open?: () => void;
 }
 
 export interface PopupReturns {

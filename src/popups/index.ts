@@ -1,4 +1,4 @@
-import { Popup, PopupButton, PopupReturns } from '.';
+import { Popup, PopupButton, PopupReturns } from './index.d';
 import { log } from '../log';
 
 
@@ -154,6 +154,9 @@ export const create_popup = (
             popup.on_close?.();
         }, timeout);
     };
+
+    // -- Execute the on_open callback
+    popup.on_open?.();
 
 
     // -- Start the check loop and return the close function

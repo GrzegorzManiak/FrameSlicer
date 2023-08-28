@@ -3,6 +3,7 @@ import { Shortcut } from '../shortcuts/index.d';
 import { export_menu_prompt } from './prompts/export_project';
 import { about_menu_prompt } from './prompts/help';
 import { import_menu_prompt } from './prompts/import_project';
+import { new_pattern_menu_prompt } from './prompts/new_pattern';
 
 // -- Load the shortcuts
 const si = Shortcuts.get_instance();
@@ -27,6 +28,7 @@ export const assign_actions = () => {
     si.assign_action('file-export', export_menu_prompt);
     si.assign_action('file-import', import_menu_prompt);
     si.assign_action('help-about', about_menu_prompt);
+    si.assign_action('pattern-new', new_pattern_menu_prompt);
 };
 
 
@@ -139,6 +141,37 @@ const create_option = (
     return opt_elm;
 };
 
+
+export const create_dropdown = (
+    title: string,
+): {
+    group_elm: HTMLDivElement,
+    title_elm: HTMLParagraphElement,
+    options_elm: HTMLDivElement,
+} => {
+    // -- Else create the group and the adjacent elements
+    const group_elm = document.createElement('div');
+    group_elm.classList.add('selector');
+    group_elm.setAttribute('menu-bar', title);
+
+    const title_elm = document.createElement('p');
+    title_elm.innerText = title;
+    group_elm.appendChild(title_elm);
+
+    const spacer = document.createElement('div');
+    spacer.classList.add('s-spacing');
+    group_elm.appendChild(spacer);
+
+    const options = document.createElement('div');
+    options.classList.add('s-options');
+    spacer.appendChild(options);
+
+    return {
+        group_elm,
+        title_elm,
+        options_elm: options,
+    };
+};
 
 
 const create_break = (

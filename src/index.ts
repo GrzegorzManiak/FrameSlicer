@@ -37,7 +37,7 @@ const line_height = 100;
 const line_depth = 60;
 
 
-const colors: Colors = {
+export const colors: Colors = {
     anchor: { fill: '#47ffbc', stroke: '#4a4a4a' },
     anchor_guide: { fill: '#108258', stroke: '#108258' },
     ghost_anchor_guide: { fill: '#10825850', stroke: '#10825850' },
@@ -50,7 +50,7 @@ const colors: Colors = {
 };
 
 
-const config: LineConfiguration = {
+export const x_config: LineConfiguration = {
     colors,
     anchor_spread: 10,
     handle_padding: 5,
@@ -63,21 +63,23 @@ const config: LineConfiguration = {
     y_offset: 0,
     depth_buffer: 20,
     achor_position: 'bottom'
-}
+};
 
-
-const x_line = new Line(_layer, config);
-const y_line = new Line(_layer, {
-    ...config,
+export const y_config: LineConfiguration = {
+    ...x_config,
     is_y_line: true,
     y_offset: 150 + line_height,
-    cutting_depth: config.size.height,
+    cutting_depth: x_config.size.height,
     achor_position: 'top',
-});
+};
 
 
-render_line(x_line);
-draw_grid(x_line, true, true);
-render_line(y_line);
-draw_grid(y_line, true, false);
+let _x_line = new Line(_layer, x_config);
+let _y_line = new Line(_layer, y_config);
+render_line(_x_line);
+render_line(_y_line);
+
+
+// draw_grid(x_line, true, true);
+// draw_grid(y_line, true, false);
 handle_controlls(_stage);

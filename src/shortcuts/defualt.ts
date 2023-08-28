@@ -80,7 +80,7 @@ export default [
         id: 'pattern-new',
         clean: 'New',
         group: 'Pattern',
-        key: ['control', 'p', 'n'],
+        key: ['control', 'p', 'm'],
     },
     {
         id: 'pattern-list',

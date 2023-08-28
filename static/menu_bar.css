@@ -41,6 +41,26 @@
     gap: 0.25rem;
 }
 
+.popup-input-dropdown {
+    background-color: var(--int-box-color);
+    height: 1.5rem;
+    font-size: 13px;
+}
+
+.popup-input-dropdown > p {
+    margin: 0;
+    padding: 0.25rem;
+    user-select: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.popup-input-dropdown .s-options {
+    background-color: var(--int-box-color);
+    outline: 1px solid var(--box-color);
+    border-radius: var(--box-radius);
+}
+
 .s-spacing {
     position: absolute;
     padding-top: 0.5rem;

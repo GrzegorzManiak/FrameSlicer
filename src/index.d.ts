@@ -39,6 +39,11 @@ export type Anchor = {
     position: { x: number, y: number }
 }
 
+export type GhostAnchor = {
+    anchor: konva.Shape,
+    line: konva.Line,
+}
+
 export type Lines = Array<Line>;
 
 export type Tool = {
@@ -97,6 +102,16 @@ export interface Colors {
     };
 
     anchor_guide: {
+        stroke: string,
+        fill: string,
+    };
+
+    ghost_anchor_handle: {
+        stroke: string,
+        fill: string,
+    };
+
+    ghost_anchor_guide: {
         stroke: string,
         fill: string,
     };

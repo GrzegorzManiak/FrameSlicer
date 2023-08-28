@@ -1,8 +1,11 @@
 import konva, {} from 'konva';
-import { Anchor, Colors, LineConfiguration } from './index.d';
+import { Anchor, Colors, GhostAnchor, LineConfiguration } from './index.d';
 import { render_line } from './render';
 import { get_client_size } from './aux';
 import { log } from './log';
+import { KonvaEventObject } from 'konva/lib/Node';
+import { append_listener, get_active_tool } from './tools/loader';
+import { ToolObject } from './tools/index.d';
 
 export default class Line {
     readonly _line: konva.Line;
@@ -17,6 +20,7 @@ export default class Line {
     private _colors: Colors;
     private _anchors: Array<Anchor>;
     private _raw_path: string;
+    private _ghost_anchor: GhostAnchor;
 
     private _position: { x: number, y: number } = { x: 0, y: 0 };
 
@@ -109,13 +113,38 @@ export default class Line {
             draggable: true,
         });
 
+        this._ghost_anchor = {
+            anchor: new konva.Rect({
+                x: 0,
+                y: 0,
+                width: 10,
+                height: 25,
+                stroke: config.colors.ghost_anchor_handle.stroke,
+                strokeWidth: 1,
+                fill: config.colors.ghost_anchor_handle.fill,
+                draggable: true,
+            }),
 
+            line: new konva.Line({
+                points: [],
+                stroke: config.colors.ghost_anchor_guide.stroke,
+                strokeWidth: 2,
+                lineCap: 'round',
+                lineJoin: 'round',
+                draggable: false,
+                fill: config.colors.ghost_anchor_guide.fill,
+                closed: false,
+                zIndex: 100,
+            }),
+        };
 
         // -- Add the elements
         layer.add(this._line);
         layer.add(this._path);
         layer.add(this._bounding_box);
         layer.add(this._depth_line);
+        layer.add(this._ghost_anchor.anchor);
+        layer.add(this._ghost_anchor.line);
 
 
         // -- Hide the depth line if it's a y line
@@ -141,6 +170,7 @@ export default class Line {
         if (init_anchors)
         this._init_anchors();
         Line._resize_listener(this);
+        this._ghost_anchor_listener();
     }
 
 
@@ -362,7 +392,7 @@ export default class Line {
         // -- Add the anchor
         const anchor = this._add_anchor(
             anchor_center.x,
-            this.position.y
+            this.position.y - this.config.y_offset
         );
 
         anchor.shape.position({
@@ -648,6 +678,136 @@ export default class Line {
     // ------ Static Functions ------ //
     //                                //
 
+
+
+    /**
+     * @name _ghost_anchor_listener
+     * Creates a ghost anchor that is used for 
+     * the 'Anchor-add' tool to show where the
+     * anchor will be placed
+     * 
+     * @returns {void} Nothing
+     */
+    public _ghost_anchor_listener(
+    ): void {
+
+        // -- Helper function to determine if the add tool is active
+        let active = get_active_tool()?.tool === 'anchor-add';
+        let in_bounds = false;
+        append_listener((tool: ToolObject) => {
+            if (!tool) active = false;
+            else active = tool.tool === 'anchor-add';
+            if (!active) in_bounds = false;
+            state();
+        });
+
+
+
+
+        // -- Helper function to automatically set the ghost anchors
+        //    visibility / state
+        const state = (
+            current_state: boolean = active && in_bounds
+        ) => {
+            // -- If the tool is active, show the ghost anchor
+            if (current_state) {
+                this._ghost_anchor.anchor.show();
+                this._ghost_anchor.line.show();
+                return;
+            }
+
+            // -- Hide the ghost anchor
+            this._ghost_anchor.anchor.hide();
+            this._ghost_anchor.line.hide();
+        };
+
+
+
+        const update_ghost_anchor = (
+            e: KonvaEventObject<any> 
+        ) => {
+            // -- make sure that the tool is active
+            if (!active) return;
+
+
+            // -- Calculate the line start and end
+            const line_start = {
+                x: this.position.x,
+                y: this.position.y - this.config.y_offset,
+            };
+
+            const line_end = {
+                x: line_start.x + this.config.size.width,
+                y: line_start.y + this.config.size.height,
+            };
+
+            // -- Get the mouse position
+            const mouse_pos = e.target.getStage().getPointerPosition();
+
+
+            // -- Check if the mouse is within the bounds
+            if (
+                mouse_pos.x < line_start.x ||
+                mouse_pos.x > line_end.x ||
+                mouse_pos.y < line_start.y ||
+                mouse_pos.y > line_end.y
+            ) return state(in_bounds = false);
+            state(in_bounds = true);
+
+
+
+            // -- Set the ghost anchor position
+            this._ghost_anchor.anchor.position({
+                x: mouse_pos.x - this._ghost_anchor.anchor.width() / 2,
+                y: this._config.achor_position === 'bottom' ? 
+                    line_start.y + this._config.cutting_depth + this._config.handle_padding :
+                    line_start.y - this._ghost_anchor.anchor.height() - this._config.handle_padding,
+            });
+
+
+            // -- Calculate the anchor center
+            const anchor = this._ghost_anchor.anchor.position(),
+                anchor_center = {
+                x: anchor.x + this._ghost_anchor.anchor.width() / 2,
+                y: anchor.y + this._ghost_anchor.anchor.height() / 2,
+            };
+
+
+            // -- Set the ghost anchor line points
+            this._ghost_anchor.line.points([
+                anchor_center.x, anchor_center.y,
+                anchor_center.x, this._config.achor_position === 'bottom' ?
+                    line_start.y - this._config.handle_padding : 
+                    line_end.y + this._config.handle_padding,
+            ]);
+        };
+
+
+
+        const add_anchor = (
+            e: KonvaEventObject<any>
+        ) => {
+            // -- Make sure that we can add an anchor
+            if (!active || !in_bounds) return;
+
+            // -- Calculate the x position of the anchor
+            const mouse_pos = e.target.getStage().getPointerPosition(),
+                x_percent = Math.abs((mouse_pos.x - this.position.x) / this.width);
+
+            // -- Add the anchor
+            const anchor = this.add_anchor(x_percent);
+            Line._set_anchor_to_mouse(this, anchor, e);
+            this.sort_anchors();
+        }
+
+
+
+        // -- Add the listener
+        this._layer.on('mousemove', (e) => update_ghost_anchor(e));
+        this._layer.on('mousedown', (e) => add_anchor(e));
+        state(false);
+    }
+
     
 
     /**
@@ -664,53 +824,70 @@ export default class Line {
         line: Line,
         anchor: Anchor
     ): void {
-        // -- Set the variables
-        let last_mouse_pos = { x: 0, y: 0 },
-            snapped = false,
-            snapped_at = 0;
-        
-        anchor.shape.on('dragmove', (e) => {
-            // -- Check if the user is holding 'ctrl'
-            const free_move = e.evt.ctrlKey;
-
-            // -- Get the anchor position
-            let { x, y } = anchor.shape.position();
-
-
-            // -- Make sure that the anchor is within the line
-            const min_y = anchor.min_y,
-                max_y = anchor.max_y;
-
-
-            // -- Get the anchors X position from the handle
-            const handle_pos = anchor.handle.position(),
-                handle_size = anchor.handle.size(),
-                const_x = handle_pos.x + handle_size.width / 2;
-
-                
-            // -- Set the anchor position
-            const width = anchor.shape.width(),
-                height = anchor.shape.height();
-
-
-            // -- Set the anchor position
-            anchor.shape.position({
-                x: const_x - width / 2,
-                y: Math.max(
-                    min_y - height / 2, 
-                    Math.min(max_y - height / 2, y)
-                )
-            });
-
-            // -- Render the line
-            last_mouse_pos = { x: e.evt.clientX, y: e.evt.clientY };
-            anchor.position = line.get_anchor_percent(anchor);
-            render_line(line);
-        });
+        // -- Add the listener
+        anchor.shape.on('dragmove', (e) => 
+            this._set_anchor_to_mouse(line, anchor, e));
 
         // -- Render the line
         render_line(line);
     };
+
+
+
+    /**
+     * @name _set_anchor_to_mouse
+     * This function sets the anchor to the mouse position
+     * ITs separated from the _anchor_listener function
+     * as this is reusable code that is used for the 
+     * 'Anchor-add' tool
+     * 
+     * @param {Line} line - The line that the anchor is on
+     * @param {Anchor} anchor - The anchor to add the listener to
+     * @param {KonvaEventObject<any>} e - The event object
+     * 
+     * @returns {void} Nothing
+     */
+    public static _set_anchor_to_mouse(
+        line: Line,
+        anchor: Anchor,
+        e: KonvaEventObject<any>
+    ): void {
+        // -- Check if the user is holding 'ctrl'
+        const free_move = e.evt.ctrlKey;
+
+        // -- Get the anchor position
+        let { x, y } = anchor.shape.position();
+
+
+        // -- Make sure that the anchor is within the line
+        const min_y = anchor.min_y,
+            max_y = anchor.max_y;
+
+
+        // -- Get the anchors X position from the handle
+        const handle_pos = anchor.handle.position(),
+            handle_size = anchor.handle.size(),
+            const_x = handle_pos.x + handle_size.width / 2;
+
+            
+        // -- Set the anchor position
+        const width = anchor.shape.width(),
+            height = anchor.shape.height();
+
+
+        // -- Set the anchor position
+        anchor.shape.position({
+            x: const_x - width / 2,
+            y: Math.max(
+                min_y - height / 2, 
+                Math.min(max_y - height / 2, y)
+            )
+        });
+
+        // -- Render the line
+        anchor.position = line.get_anchor_percent(anchor);
+        render_line(line);
+    }
 
 
 
@@ -756,6 +933,7 @@ export default class Line {
             render_line(line);
         });
     };
+
 
 
 

@@ -40,7 +40,9 @@ const line_depth = 60;
 const colors: Colors = {
     anchor: { fill: '#47ffbc', stroke: '#4a4a4a' },
     anchor_guide: { fill: '#108258', stroke: '#108258' },
+    ghost_anchor_guide: { fill: '#10825850', stroke: '#10825850' },
     anchor_handle: { fill: '#47ffbc', stroke: '#4a4a4a' },
+    ghost_anchor_handle: { fill: '#47ffbc50', stroke: '#4a4a4a50' },
     bounding_box: { fill: '#ffffff10', stroke: '#ffffff15' },
     depth_line: { fill: '#ff3049', stroke: '#eb4034' },
     line: { fill: '#ebebeb30', stroke: '#ebebeb' },

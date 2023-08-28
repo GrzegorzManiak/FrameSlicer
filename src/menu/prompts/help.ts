@@ -24,11 +24,11 @@ export const about_menu_prompt = () => {
             Thank you for using FS Editor!
         `,
         buttons: [
-            { text: 'Github', type: 'INFO', callback: () => {
+            { id: 'gh-btn', text: 'Github', type: 'INFO', callback: () => {
                 window.open('https://github.com/GrzegorzManiak/FrameSlicer', '_blank');
             }},
 
-            { text: 'Grzegorz', type: 'INFO', callback: () => {
+            { id: 'ps-btn', text: 'Grzegorz', type: 'INFO', callback: () => {
                 window.open('https://grzegorz.ie', '_blank');
             }},
         ],

@@ -18,9 +18,9 @@ export const export_menu_prompt = () => {
 
     const inputs = create_input_group();   
     inputs.appendChild(popup_input(
-        'Save project', 
-        'Automatically save your project locally',
-        'true', 
+        'Save current',
+        'Automatically save your current project locally',
+        'true',
         'checkbox'
     ));
     inputs.appendChild(popup_input(
@@ -35,6 +35,7 @@ export const export_menu_prompt = () => {
         title: 'Export',
         message: 'Would you like to export your current project as a .fse file? You can import it later.',
         buttons: [{ 
+            id: 'export',
             text: 'Export',
             type: 'SUCCESS', 
             callback: () => prompt.close() 

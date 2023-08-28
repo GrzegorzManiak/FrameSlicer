@@ -171,6 +171,10 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
     user-select: none;
 }
 
+.popup-input-hidden {
+    display: none!important;
+}
+
 .popup-input-title {
     font-size: 1rem;
     font-weight: 500;
@@ -306,7 +310,9 @@ popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
     margin: 0;
 }
 
-popup [disabled] {
+popup [disabled], 
+popup [disabled] * {
     pointer-events: none;
     opacity: 0.5;
+    cursor: not-allowed;
 }

@@ -45,6 +45,7 @@
     background-color: var(--int-box-color);
     height: 1.5rem;
     font-size: 13px;
+    padding: 0.25rem;
 }
 
 .popup-input-dropdown > p {
@@ -67,6 +68,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease-in-out;
+    z-index: 1000;
 }
 
 .s-options {

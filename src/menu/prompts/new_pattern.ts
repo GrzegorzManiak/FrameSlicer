@@ -12,42 +12,93 @@ let open = false;
  * 
  * @returns {void}
  */
-export const new_pattern_menu_prompt = () => {
+export const new_pattern_menu_prompt = (): void => {
 
     // -- Check if the popup is already open
     if (open) return;
     open = true;    
 
-    const auto_save = create_input_group();
-    auto_save.appendChild(popup_input(
-        'Save project',
-        'Automatically save your project locally',
-        'true',
-        'checkbox'
-    ));
 
-    const check_box = create_input_group();
-    check_box.appendChild(popup_input('Pattern type', `The type of pattern to create`, [
-        '(Y axis) - Side to side',
-        '(X axis) - Front to back',
-    ], 'dropdown'));
+    // -- Variables used to store the inputs
+    const drop_down_opts = ['(Y axis) - Side to side', '(X axis) - Front to back'];
+    let width = -1, height = -1, depth = -1, 
+        name = '', pattern_type = drop_down_opts[0];
+        
 
+
+    // -- Helper function to check if the inputs are valid
+    const check_inputs = (): boolean => {
+    
+        const valid = (() => {
+            // -- Check if the name is valid
+            if (name.length === 0) return false;
+
+            // -- Check if the width is valid
+            if (pattern_type === drop_down_opts[0]) 
+                if (width < 1 || height < 1) return false;
+            
+            // -- Check if the depth is valid
+            if (pattern_type === drop_down_opts[1]) 
+                if (width < 1 || depth < 1) return false;
+
+            // -- All checks passed
+            log('INFO', 'New pattern menu inputs are valid');
+            return true;
+        })();
+
+        // -- Return true if all checks passed
+        if (popup) popup.lock_button(!valid, 'create');
+        return valid;
+    }
+
+
+    // -- Name input
+    const name_elm = popup_input<string>('Pattern Name', 'The name of your new pattern',
+        'Wavy 2x2', 'text', (value) => { name = value; check_inputs(); });
+
+
+    // -- Size inputs
     const size_group = create_input_group();
-    size_group.appendChild(popup_input('Width', '', '100', 'number'));
-    size_group.appendChild(popup_input('Height', '', '100', 'number'));
-    size_group.appendChild(popup_input('Depth', '', '100', 'number'));
+    size_group.appendChild(popup_input<number>('Width', 'mm', '100', 'number', 
+        (v) => { width = v; check_inputs(); }));
+    size_group.appendChild(popup_input<number>('Height', 'mm', '100', 'number', 
+        (v) => { height = v; check_inputs(); }));
+    size_group.appendChild(popup_input<number>('Depth', 'mm', '100', 'number',  
+        (v) => { depth = v; check_inputs(); }));
 
-    const div = document.createElement('div');
-    div.appendChild(auto_save);
-    div.appendChild(check_box);
-    div.appendChild(size_group);
+
+    // -- pattern type
+    const check_box = create_input_group();
+    check_box.appendChild(popup_input('Pattern type', `The type of pattern to create`, drop_down_opts, 'dropdown', (value) => {
+        // -- Get the pattern type, this will set the inputs that are shown
+        pattern_type = value as string;
+
+        // -- Show the width and height inputs
+        if (pattern_type === '(Y axis) - Side to side') {
+            size_group.children[0].classList.remove('popup-input-hidden');
+            size_group.children[1].classList.remove('popup-input-hidden');
+            size_group.children[2].classList.add('popup-input-hidden');
+        }
+
+        // -- Show the width and depth inputs
+        if (pattern_type === '(X axis) - Front to back') {
+            size_group.children[0].classList.remove('popup-input-hidden');
+            size_group.children[1].classList.add('popup-input-hidden');
+            size_group.children[2].classList.remove('popup-input-hidden');
+        }
+
+        // -- Check the inputs
+        check_inputs();
+    }));
+
 
     
     // -- Create the popup
-    const prompt = create_popup({
+    const popup = create_popup({
         title: 'New Pattern',
         message: `Create a new pattern, this will overwrite your current project, any unsaved changes will be lost.`,
         buttons: [{ 
+            id: 'create',
             text: 'Create', 
             type: 'SUCCESS', 
             callback: (lock) => {
@@ -59,8 +110,15 @@ export const new_pattern_menu_prompt = () => {
         auto_close: false,
         close_button: true,
         on_close: () => open = false,
-        on_open: () => {
+        on_open: (pr) => {
             log('INFO', 'New pattern menu opened');
+            pr.lock_button(true, 'create');
         }
-    }, div);
+    }, 
+        
+    // -- Add the inputs
+    create_input_group()
+        .appendChild(name_elm)
+        .appendChild(check_box)
+        .appendChild(size_group));
 };

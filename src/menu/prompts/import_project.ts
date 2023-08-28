@@ -73,6 +73,7 @@ export const import_menu_prompt = () => {
         title: 'Import',
         message: 'Import a .fse file, this will overwrite your current project, any unsaved changes will be lost.',
         buttons: [{ 
+            id: 'import',
             text: 'Import', 
             type: 'SUCCESS', 
             callback: (lock) => {
@@ -88,9 +89,9 @@ export const import_menu_prompt = () => {
         on_close: () => open = false,
     }, create_input_group().appendChild(
         popup_input(
-            'Save project', 
-            'Automatically save your project locally',
-            'true', 
+            'Save current',
+            'Automatically save your current project locally',
+            'true',
             'checkbox'
         )
     ));

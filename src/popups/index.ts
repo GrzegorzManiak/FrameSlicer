@@ -18,6 +18,7 @@ const create_button = (
     const button = document.createElement('button');
     button.setAttribute('popup-button', cfg.type);
     button.setAttribute('btn-text', cfg.text);
+    button.setAttribute('btn-id', cfg.id);
     button.innerText = cfg.text;
 
     const lock_state = (state: boolean) => {
@@ -132,6 +133,14 @@ export const create_popup = (
         closed = true;
     });
 
+    // -- Create the returnable
+    const pr: PopupReturns =  {
+        close: () => closed = true,
+        lock_button: (state: boolean, id: string) => {
+            const btn = Array.from(popup_element.querySelectorAll(`[btn-id="${id}"]`));
+            btn.forEach((b) => state ? b.setAttribute('disabled', '') : b.removeAttribute('disabled'));
+        }
+    };
     
     // -- Check if the popup has been closed
     const check_closed = () => {
@@ -144,28 +153,22 @@ export const create_popup = (
         popup_element.addEventListener('animationend', () => 
         popup_container.removeChild(popup_element));
         log('INFO', 'Popup closed');
-        popup.on_close?.();
+        popup.on_close?.(pr);
 
         // -- Remove the element after x sec if it doesn't close
         setTimeout(() => {
             if (!popup_element.parentNode) return;
             popup_element.parentNode.removeChild(popup_element);
             log('WARN', 'Emergency popup close');
-            popup.on_close?.();
+            popup.on_close?.(pr);
         }, timeout);
     };
 
     // -- Execute the on_open callback
-    popup.on_open?.();
+    popup.on_open?.(pr);
 
 
     // -- Start the check loop and return the close function
     check_closed();
-    return {
-        close: () => closed = true,
-        lock_button: (state: boolean, name: string) => {
-            const btn = Array.from(popup_element.querySelectorAll(`[btn-text="${name}"]`));
-            btn.forEach((b) => state ? b.setAttribute('disabled', '') : b.removeAttribute('disabled'));
-        }
-    }
+    return pr;
 };

@@ -227,10 +227,21 @@ const _defualt_input = <e>(
 ): HTMLInputElement => {
     // -- Create the input element
     const input = document.createElement('input');
+    let prev_value = '';
 
     input.setAttribute('type', type);
     input.setAttribute('placeholder', placeholder as string);
-    input.addEventListener('change', () => on_change(input.value as unknown as e));
+    input.addEventListener('change', () => {
+        // -- If the input type is a number, check if its a number
+        if (type === 'number') {
+            const value = input.value as unknown as number;
+            if (isNaN(value)) input.value = prev_value;
+        }
+
+        // -- Call the on change function
+        on_change(input.value as unknown as e);
+        prev_value = input.value;
+    });
     input.addEventListener('keyup', (e) => {
         if (e.key === 'Enter') on_enter(input.value as unknown as e);
         if (e.key === 'Escape') on_escape(input.value as unknown as e);

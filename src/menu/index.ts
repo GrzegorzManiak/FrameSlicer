@@ -1,3 +1,5 @@
+import App from '..';
+import { log } from '../log';
 import Shortcuts from '../shortcuts';
 import { Shortcut } from '../shortcuts/index.d';
 import { export_menu_prompt } from './prompts/export_project';
@@ -28,10 +30,30 @@ export const assign_actions = () => {
     // -- Add the shortcut
     si.assign_action('file-export', export_menu_prompt);
     si.assign_action('file-import', import_menu_prompt);
-    si.assign_action('file-save', save_project_menu_prompt);
-
     si.assign_action('help-about', about_menu_prompt);
     si.assign_action('pattern-new', new_pattern_menu_prompt);
+
+
+    // -- THe save shortcut is a bit different, as it needs to be
+    //    used by multiple systems such as Projects and Patterns
+    si.assign_action('file-save', () => {
+        const app = App.get_instance();
+        
+        if (app.stage_use_type === 'project') {
+            log('INFO', 'Saving a "Project"');
+            save_project_menu_prompt();
+            return;
+        }
+
+        if (
+            app.stage_use_type === 'x-pattern' ||
+            app.stage_use_type === 'y-pattern'
+        ) {
+            log('INFO', 'Saving a "Pattern"');
+            return;
+        }
+
+    });
 };
 
 

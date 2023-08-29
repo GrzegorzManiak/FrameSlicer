@@ -460,6 +460,8 @@ export default class FSLocalStorage {
      * @param {string} name - The name of the project
      * @param {Line} x_line - The x line
      * @param {Line} y_line - The y line
+     * @param {number} [created=Date.now()] - The time the project was created
+     * @param {number} [updated=Date.now()] - The time the project was updated
      *
      * @returns {boolean} - True if the pattern was saved
      */
@@ -467,6 +469,8 @@ export default class FSLocalStorage {
         name: string,
         x_line: Line,
         y_line: Line,
+        created: number = Date.now(),
+        updated: number = Date.now(),
     ): boolean {
 
         // -- Serialize the data
@@ -494,9 +498,8 @@ export default class FSLocalStorage {
         // -- Construct the metadata object
         const meta: FSProject = {
             name,
+            created, updated,
             type: 'project',
-            created: Date.now(),
-            updated: Date.now(),
             x_meta: x_line.config,
             y_meta: y_line.config,
             preview: '',
@@ -524,12 +527,16 @@ export default class FSLocalStorage {
      * 
      * @param {string} name - The name of the pattern
      * @param {Line} line - The line
+     * @param {number} [created=Date.now()] - The time the pattern was created
+     * @param {number} [updated=Date.now()] - The time the pattern was updated
      * 
      * @returns {boolean} - True if the pattern was saved
      */
     public save_pattern(
         name: string,
         line: Line,
+        created: number = Date.now(),
+        updated: number = Date.now(),
     ): boolean {
             
         // -- Serialize the data
@@ -555,9 +562,8 @@ export default class FSLocalStorage {
         // -- Construct the metadata object
         const meta: FSProject = {
             name,
+            created, updated,
             type: line.config.is_y_line ? 'y_pattern' : 'x_pattern',
-            created: Date.now(),
-            updated: Date.now(),
             x_meta: line.config.is_y_line ? undefined : line.config,
             y_meta: line.config.is_y_line ? line.config : undefined,
             preview: '',
@@ -906,4 +912,108 @@ export default class FSLocalStorage {
 
 
 
+    /**
+     * @name update_project
+     * Update a project in local storage, the project
+     * must already exist.
+     * 
+     * @param {string} name - The name of the project
+     * @param {Line} x_line - The x line
+     * @param {Line} y_line - The y line
+     * 
+     * @returns {boolean} - True if the project was updated
+     */
+    public update_project(
+        name: string,
+        x_line: Line,
+        y_line: Line,
+    ): boolean {
+        // -- Get the project
+        const project = this.get_project(name);
+        if (project === null) {
+            log('ERROR', `Failed to get project with name: ${name}`);
+            return false;
+        }
+
+        // -- Ensure that there is enough space
+        const x_line_data = x_line.serialize();
+        const y_line_data = y_line.serialize();
+
+        // -- Calculate the size of the data
+        const x_line_size = FSLocalStorage.string_byte_size(x_line_data);
+        const y_line_size = FSLocalStorage.string_byte_size(y_line_data);
+
+        // -- Check if the data is too big
+        if (x_line_size + y_line_size > this._MAX_SIZE) {
+            log('ERROR', 'Project is too big to save');
+            create_toast('error', 'Project is too big to save', 'Please export the project and try again');
+            return false;
+        }
+        
+        // -- Delete the project
+        const delted = this.delete_project(name);
+        if (!delted) {
+            log('ERROR', `Failed to delete project with name: ${name}`);
+            return false;
+        }
+
+        // -- Save the project
+        return this.save_project(
+            name, 
+            x_line, 
+            y_line,
+            project.created,
+        );
+    }
+
+
+
+    /**
+     * @name update_pattern
+     * Update a pattern in local storage, the pattern
+     * must already exist.
+     * 
+     * @param {string} name - The name of the pattern
+     * @param {Line} line - The line
+     * 
+     * @returns {boolean} - True if the pattern was updated
+     */
+    public update_pattern(
+        name: string,
+        line: Line,
+    ): boolean {
+        // -- Get the pattern
+        const project = line.config.is_y_line ? this.get_y_pattern(name) : this.get_x_pattern(name);
+        if (project === null) {
+            log('ERROR', `Failed to get pattern with name: ${name}`);
+            return false;
+        }
+
+        // -- Ensure that there is enough space
+        const line_data = line.serialize();
+
+        // -- Calculate the size of the data
+        const line_size = FSLocalStorage.string_byte_size(line_data);
+
+        // -- Check if the data is too big
+        if (line_size > this._MAX_SIZE) {
+            log('ERROR', 'Pattern is too big to save');
+            create_toast('error', 'Pattern is too big to save', 'Please export the pattern and try again');
+            return false;
+        }
+
+        // -- Delete the pattern
+        const delted = line.config.is_y_line ? this.delete_y_pattern(name) : this.delete_x_pattern(name);
+        if (!delted) {
+            log('ERROR', `Failed to delete pattern with name: ${name}`);
+            return false;
+        }
+
+        // -- Save the pattern
+        return this.save_pattern(
+            name, 
+            line, 
+            project.created,
+        );
+    }
 }

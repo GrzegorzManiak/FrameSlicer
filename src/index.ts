@@ -1,6 +1,6 @@
 import konva from 'konva';
 import { get_client_size } from './aux';
-import { Colors, LineConfiguration } from './index.d';
+import { Colors, LineConfiguration, StageUseType } from './index.d';
 import { render_line } from './render';
 import { draw_grid } from './render/ruler';
 import { handle_controlls } from './canvas/view_controlls';
@@ -75,12 +75,95 @@ export const y_config: LineConfiguration = {
     achor_position: 'top',
 };
 
+let _app_instance: App = null;
+export default class App {
+    private _x_line: Line | null = null;
+    private _y_line: Line | null = null;
+
+    private _stage_identifier: string = null;
+    private _stage_use_type: StageUseType = 'project';
+
+    private constructor() {}
+
+    /**
+     * @name get_instance
+     * Returns the singleton instance of the App class
+     * 
+     * @returns {App}
+     */
+    public static get_instance(): App {
+        if (!_app_instance) _app_instance = new App();
+        return _app_instance;
+    }
 
 
-export let _x_line = new Line(_layer, x_config);
-export let _y_line = new Line(_layer, y_config);
+
+    /**
+     * @name get_x_line
+     * Returns the x line
+     * 
+     * @returns {Line}
+     */
+    public get_x_line(): Line { return this._x_line; }
+
+    /**
+     * @name get_y_line
+     * Returns the y line
+     * 
+     * @returns {Line}
+     */
+    public get_y_line(): Line { return this._y_line; }
+
+
+
+    /**
+     * @name set_x_line
+     * Sets the x line
+     * 
+     * @param {Line | null} line - The new x line (can be null)
+     * 
+     * @returns {void}
+     */
+    public set_x_line(line: Line | null): void { this._x_line = line; }
+
+    /**
+     * @name set_y_line
+     * Sets the y line
+     *  
+     * @param {Line | null} line - The new y line (can be null)
+     * 
+     * @returns {void}
+     */
+    public set_y_line(line: Line | null): void { this._y_line = line; }
+
+
+    // TODO: Add functions to controll the grid
+
+
+    get stage_identifier(): string { return this._stage_identifier; }
+    set stage_identifier(id: string) { this._stage_identifier = id; }
+
+    get stage_use_type(): StageUseType { return this._stage_use_type; }
+    set stage_use_type(type: StageUseType) { this._stage_use_type = type; }
+}
+
+
+// -- Create the first instance of the app
+export const _app = App.get_instance();
+
+// -- Defualt the x and y lines
+const _x_line = new Line(_layer, x_config);
+const _y_line = new Line(_layer, y_config);
+
+// -- Set the x and y lines
+_app.set_x_line(_x_line);
+_app.set_y_line(_y_line);
+
+// -- Render the lines
 render_line(_x_line);
 render_line(_y_line);
+
+
 
 
 // draw_grid(x_line, true, true);

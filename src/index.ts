@@ -34,6 +34,12 @@ load_tools();
 init_menu();
 
 
+// -- App debug text
+const app_debug = document.getElementById('app-debug');
+if (!app_debug) throw new Error('Could not find the app debug element');
+app_debug.innerHTML = '';
+
+
 const line_width = 500;
 const line_height = 100;
 const line_depth = 60;
@@ -83,7 +89,9 @@ export default class App {
     private _stage_identifier: string = null;
     private _stage_use_type: StageUseType = 'project';
 
-    private constructor() {}
+    private constructor() {
+        this._update_app_debug();
+    }
 
     /**
      * @name get_instance
@@ -124,7 +132,10 @@ export default class App {
      * 
      * @returns {void}
      */
-    public set_x_line(line: Line | null): void { this._x_line = line; }
+    public set_x_line(line: Line | null): void { 
+        this._x_line = line; 
+        this._update_app_debug();
+    }
 
     /**
      * @name set_y_line
@@ -134,17 +145,47 @@ export default class App {
      * 
      * @returns {void}
      */
-    public set_y_line(line: Line | null): void { this._y_line = line; }
+    public set_y_line(line: Line | null): void { 
+        this._y_line = line; 
+        this._update_app_debug();
+    }
 
 
     // TODO: Add functions to controll the grid
 
 
+    /**
+     * @name _update_app_debug
+     * Internal function that updates the app debug text
+     * 
+     * @returns {void}
+     */
+    private _update_app_debug(): void {
+        const SID = this._stage_identifier ? this._stage_identifier.toUpperCase() : 'NONE';
+        const SUT = this._stage_use_type ? this._stage_use_type.toUpperCase() : 'NONE';
+
+        const text = `
+            SID: ${SID} |
+            SUT: ${SUT} |
+            X: ${this._x_line ? 'TRUE' : 'FALSE'} |
+            Y: ${this._y_line ? 'TRUE' : 'FALSE'}
+        `;
+
+        app_debug.innerHTML = text;
+    }
+
+
     get stage_identifier(): string { return this._stage_identifier; }
-    set stage_identifier(id: string) { this._stage_identifier = id; }
+    set stage_identifier(id: string) { 
+        this._stage_identifier = id; 
+        this._update_app_debug();
+    }
 
     get stage_use_type(): StageUseType { return this._stage_use_type; }
-    set stage_use_type(type: StageUseType) { this._stage_use_type = type; }
+    set stage_use_type(type: StageUseType) { 
+        this._stage_use_type = type; 
+        this._update_app_debug();
+    }
 }
 
 

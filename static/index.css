@@ -127,3 +127,9 @@ body {
 #key-display:not([hidden]) {
     animation: key-display-in 0.5s ease forwards;
 }
+
+#app-debug {
+    margin-top: 0.5rem;
+    font-size: 0.7rem;
+    color: var(--muted-font-color);
+}

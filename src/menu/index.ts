@@ -4,6 +4,7 @@ import { export_menu_prompt } from './prompts/export_project';
 import { about_menu_prompt } from './prompts/help';
 import { import_menu_prompt } from './prompts/import_project';
 import { new_pattern_menu_prompt } from './prompts/new_pattern';
+import { save_project_menu_prompt } from './prompts/save_project';
 
 // -- Load the shortcuts
 const si = Shortcuts.get_instance();
@@ -27,6 +28,8 @@ export const assign_actions = () => {
     // -- Add the shortcut
     si.assign_action('file-export', export_menu_prompt);
     si.assign_action('file-import', import_menu_prompt);
+    si.assign_action('file-save', save_project_menu_prompt);
+
     si.assign_action('help-about', about_menu_prompt);
     si.assign_action('pattern-new', new_pattern_menu_prompt);
 };

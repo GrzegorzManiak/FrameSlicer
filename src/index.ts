@@ -76,8 +76,9 @@ export const y_config: LineConfiguration = {
 };
 
 
-let _x_line = new Line(_layer, x_config);
-let _y_line = new Line(_layer, y_config);
+
+export let _x_line = new Line(_layer, x_config);
+export let _y_line = new Line(_layer, y_config);
 render_line(_x_line);
 render_line(_y_line);
 

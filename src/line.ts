@@ -500,6 +500,21 @@ export default class Line {
 
         // -- Return the serialized state
         return JSON.stringify(serialized_state);
+    };
+
+
+
+    /**
+     * @name serialized_anchors
+     * Gets the serialized anchors
+     * 
+     * @returns {Array<{x: number, y: number}>} The serialized anchors
+     */
+    public get serialized_anchors(
+    ): Array<{ x: number, y: number }> {
+        return this._anchors.map(anchor => (
+            this.get_anchor_percent(anchor)
+        ));
     }
 
 

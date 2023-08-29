@@ -21,7 +21,8 @@ export const new_pattern_menu_prompt = (): void => {
 
     // -- Variables used to store the inputs
     const drop_down_opts = ['(Y axis) - Side to side', '(X axis) - Front to back'];
-    let width = -1, height = -1, depth = -1, 
+    const min_size = 15;
+    let width = -1, height = -1, depth = -1, anchors = 0,
         name = '', pattern_type = drop_down_opts[0];
         
 
@@ -35,11 +36,14 @@ export const new_pattern_menu_prompt = (): void => {
 
             // -- Check if the width is valid
             if (pattern_type === drop_down_opts[0]) 
-                if (width < 1 || height < 1) return false;
+                if (width < min_size || height < min_size) return false;
             
             // -- Check if the depth is valid
             if (pattern_type === drop_down_opts[1]) 
-                if (width < 1 || depth < 1) return false;
+                if (width < min_size || depth < min_size) return false;
+
+            // -- Check if the anchors are valid
+            if (anchors < 0) return false;
 
             // -- All checks passed
             log('INFO', 'New pattern menu inputs are valid');
@@ -55,6 +59,10 @@ export const new_pattern_menu_prompt = (): void => {
     // -- Name input
     const name_elm = popup_input<string>('Pattern Name', 'The name of your new pattern',
         'Wavy 2x2', 'text', (value) => { name = value; check_inputs(); });
+
+    // -- Auto anchor input
+    const auto_anchor = popup_input<number>('Auto Anchor', 'Adds x equaly spaced anchors to the pattern',
+        '0', 'number', (value) => { anchors = value; check_inputs(); });
 
 
     // -- Size inputs
@@ -91,8 +99,13 @@ export const new_pattern_menu_prompt = (): void => {
         check_inputs();
     }));
 
+    // -- Add all the inputs to the input group
+    const inputs = create_input_group();
+    inputs.appendChild(name_elm);
+    inputs.appendChild(auto_anchor);
+    inputs.appendChild(check_box);
+    inputs.appendChild(size_group);
 
-    
     // -- Create the popup
     const popup = create_popup({
         title: 'New Pattern',
@@ -104,7 +117,10 @@ export const new_pattern_menu_prompt = (): void => {
             callback: (lock) => {
                 // -- Lock the button
                 lock(true);
+                log('INFO', 'New pattern menu create button pressed');
 
+                // -- Close the popup
+                popup.close();
             } 
         }],
         auto_close: false,
@@ -114,11 +130,5 @@ export const new_pattern_menu_prompt = (): void => {
             log('INFO', 'New pattern menu opened');
             pr.lock_button(true, 'create');
         }
-    }, 
-        
-    // -- Add the inputs
-    create_input_group()
-        .appendChild(name_elm)
-        .appendChild(check_box)
-        .appendChild(size_group));
+    }, inputs);
 };

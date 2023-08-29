@@ -10,10 +10,12 @@ import { init_zoom } from './canvas/zoom';
 import { assign_actions, init_menu } from './menu';
 import Shortcuts from './shortcuts';
 import { load_tools } from './tools';
+import FSLocalStorage from './local_storage';
 
 
 // -- Stage
 const si = Shortcuts.get_instance();
+const ls = FSLocalStorage.get_instance();
 
 let [width, height] = get_client_size();
 export const _stage = new konva.Stage({

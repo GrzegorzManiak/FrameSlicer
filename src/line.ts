@@ -177,6 +177,81 @@ export default class Line {
 
 
     /**
+     * @name destroy
+     * This function aims to fully destroy the line, all
+     * of its elements, event listeners, references, etc.
+     * 
+     * @returns {void} Nothing
+     */
+    public destroy(
+    ): void {    
+        log('INFO', `Destroying the line`);
+
+        // -- Remove the event listeners
+        this._layer.off('mousemove');
+        this._layer.off('mousedown');
+
+        // -- Window resize listener
+        if (this._resize_listener_func) window.removeEventListener(
+            'resize', this._resize_listener_func);
+
+        this._line.destroy();
+        this._path.destroy();
+        this._handle.destroy();
+        this._anchor.destroy();
+        this._depth_line.destroy();
+        this._bounding_box.destroy();
+        this._layer.destroy();
+        this._ghost_anchor.anchor.destroy();
+        this._ghost_anchor.line.destroy();
+        
+        this._anchors.forEach(anchor => {
+            // -- Remove the event listeners
+            anchor.handle.off('dragmove');
+            anchor.shape.off('dragmove');
+
+            // -- Destroy the elements
+            anchor.shape.destroy();
+            anchor.handle.destroy();
+            anchor.line.destroy();
+        });
+
+
+        // -- Delete the objects
+        delete this._config;
+        delete this._colors;
+        delete this._anchors;
+        delete this._raw_path;
+        delete this._ghost_anchor;
+        delete this._position;
+
+        // -- We can just TS ignore this because we know
+        //    that the destroy function is not going to 
+        //    be called again  
+
+        // @ts-ignore
+        this._line = null;
+        // @ts-ignore
+        this._path = null;
+        // @ts-ignore
+        this._handle = null;
+        // @ts-ignore
+        this._anchor = null;
+        // @ts-ignore
+        this._depth_line = null;
+        // @ts-ignore
+        this._bounding_box = null;
+        // @ts-ignore
+        this._layer = null;
+        this._resize_listener_func = null;
+
+        // -- Log the info
+        log('INFO', `Destroyed the line`);
+    }
+
+
+
+    /**
      * @name set_path
      * Sets the path of the line and
      * draws the line
@@ -1053,6 +1128,7 @@ export default class Line {
 
 
 
+    public _resize_listener_func: () => void;
 
     /**
      * @name _resize_listener
@@ -1074,10 +1150,13 @@ export default class Line {
         //    that we have to process, it will wait for the user
         //    to stop resizing the window before executing the function
         let resize_timeout;
-        window.addEventListener('resize', () => {
+        line._resize_listener_func = () => {
             if (resize_timeout) clearTimeout(resize_timeout);
-            resize_timeout = setTimeout(() => resize(), wait);
-        });
+            resize_timeout = setTimeout(() => resize, wait);
+        };
+
+        window.addEventListener('resize', 
+            () => line._resize_listener_func());
 
 
         // -- Function responsible for resizing the line

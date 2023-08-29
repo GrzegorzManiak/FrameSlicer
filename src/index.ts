@@ -104,6 +104,32 @@ export default class App {
         return _app_instance;
     }
 
+    
+
+    /**
+     * @name destroy
+     * Destroy the current loaded project / pattern
+     * and resets the app to its default state
+     * 
+     * @returns {void}
+     */
+    public destroy(): void {
+        // -- Destroy the lines
+        if (this._x_line) this._x_line.destroy();
+        if (this._y_line) this._y_line.destroy();
+
+        // -- Reset the lines
+        this._x_line = null;
+        this._y_line = null;
+
+        // -- Reset the stage
+        this._stage_identifier = null;
+        this._stage_use_type = 'project';
+
+        // -- Update the app debug
+        this._update_app_debug();
+    }
+
 
 
     /**
@@ -203,7 +229,6 @@ _app.set_y_line(_y_line);
 // -- Render the lines
 render_line(_x_line);
 render_line(_y_line);
-
 
 
 

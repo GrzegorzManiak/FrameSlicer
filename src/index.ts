@@ -115,8 +115,15 @@ export default class App {
      */
     public destroy(): void {
         // -- Destroy the lines
-        if (this._x_line) this._x_line.destroy();
-        if (this._y_line) this._y_line.destroy();
+        if (this._x_line) {
+            this._x_line.destroy();
+            delete this._x_line;
+        }
+        
+        if (this._y_line) {
+            this._y_line.destroy();
+            delete this._y_line;
+        }
 
         // -- Reset the lines
         this._x_line = null;

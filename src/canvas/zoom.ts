@@ -1,5 +1,5 @@
 import Shortcuts from '../shortcuts';
-import { _layer, _stage } from '../index';
+import { _stage } from '../index';
 import { append_listener, get_active_tool } from '../tools/loader';
 import { KonvaEventObject } from 'konva/lib/Node';
 

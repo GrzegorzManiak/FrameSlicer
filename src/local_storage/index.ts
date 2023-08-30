@@ -183,7 +183,7 @@ export default class FSLocalStorage {
             // -- Check if the values are equal
             if (a_value === b_value) return 0;
 
-            
+
             // -- Check if the order is ascending
             if (sort === 'asc') {
                 if (a_value < b_value) return 1;
@@ -952,13 +952,14 @@ export default class FSLocalStorage {
         name: string,
     ): ProjectData | null {
         const data_key = this._create_data_key(this._project_data_key, name),
-            data = localStorage.getItem(data_key) as unknown as ProjectData;
+            raw_data = localStorage.getItem(data_key),
+            data = raw_data === null ? null : JSON.parse(raw_data);
 
         // -- Ensure that the data is in the correct format
         if (
             typeof data !== 'object' ||
-            typeof data.x !== 'object' ||
-            typeof data.y !== 'object'
+            Array.isArray(data.x) !== true ||
+            Array.isArray(data.y) !== true
         ) return null;
 
         // -- Loop through the data and ensure that it is in the correct format
@@ -978,6 +979,41 @@ export default class FSLocalStorage {
 
         // -- Return the data
         return data;
+    }
+
+
+
+    /**
+     * @name get_serialized_project
+     * Returns the whole project as a serialized string
+     * 
+     * @param {string} name - The name of the project
+     * 
+     * @returns {{ x_line: string, y_line: string }| null} - The serialized project or null if it doesn't exist
+     */
+    public get_serialized_project(
+        name: string,
+    ): {
+        x_line: string,
+        y_line: string,
+    } | null {
+        // -- Get the project data
+        const data = this.get_project_data(name),
+            meta = this.get_project(name);
+
+        if (data === null || meta === null) {
+            log('ERROR', `Failed to get project data with name: ${name}`);
+            return null;
+        }
+
+        const x_line = { config: meta.x_meta, anchors: data.x, };
+        const y_line = { config: meta.y_meta, anchors: data.y, };
+
+        // -- Serialize the data
+        return {
+            x_line: JSON.stringify(x_line),
+            y_line: JSON.stringify(y_line),
+        }
     }
 
 

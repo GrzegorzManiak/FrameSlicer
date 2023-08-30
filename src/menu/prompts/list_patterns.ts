@@ -20,7 +20,8 @@ export const list_patterns = (
 
 
     // -- Create the content
-    const search_box = create_search_menu('x_pattern', mode);
+    let close: () => void = () => {};
+    const search_box = create_search_menu('x_pattern', mode, close);
     
     // -- Create the popup
     const prompt = create_popup({
@@ -32,6 +33,7 @@ export const list_patterns = (
         on_close: () => open = false,
     }, search_box);
     
+    close = prompt.close;
 
     // -- Add a 'search' class to the popup
     prompt.main_elm.setAttribute('search', 'projects');

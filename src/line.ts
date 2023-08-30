@@ -29,6 +29,7 @@ export default class Line {
         config: LineConfiguration,
         init_anchors: boolean = true
     ) {
+        log('INFO', `Creating a new line`);
         const [c_width, c_height] = get_client_size();
         const c_center_x = c_width / 2 - config.size.width / 2,
             c_center_y = c_height / 2 - config.size.height / 2;   
@@ -145,6 +146,7 @@ export default class Line {
         layer.add(this._depth_line);
         layer.add(this._ghost_anchor.anchor);
         layer.add(this._ghost_anchor.line);
+        log('INFO', `Created all the line elements`);
 
 
         // -- Hide the depth line if it's a y line
@@ -167,11 +169,18 @@ export default class Line {
 
         // -- Initialize the anchors
         this._anchors = [];
-        if (init_anchors)
-        this._init_anchors();
+        if (init_anchors) this._init_anchors();
+
+
         Line._resize_listener(this);
         this._ghost_anchor_listener();
         this._remove_anchor_listener();
+        log('INFO', `Created the line`);
+
+
+        // -- Request a redraw
+        this._layer.draw();
+        log('INFO', `Requested a redraw`);
     }
 
 
@@ -667,7 +676,7 @@ export default class Line {
         // -- Get the data
         const config = data['config'] as LineConfiguration,
             anchors = data['anchors'] as Array<{ x: number, y: number }>;
-
+        
         // -- Create the line
         const deserialized_line = new Line(layer, config, false);
 
@@ -694,6 +703,7 @@ export default class Line {
         deserialized_line.sort_anchors();
 
         // -- Return the deserialized line
+        render_line(deserialized_line);
         return deserialized_line;
     }
 
@@ -1155,8 +1165,10 @@ export default class Line {
             resize_timeout = setTimeout(() => resize, wait);
         };
 
-        window.addEventListener('resize', 
-            () => line._resize_listener_func());
+        window.addEventListener('resize', () => {
+            if (line._resize_listener_func)
+            line._resize_listener_func();
+        });
 
 
         // -- Function responsible for resizing the line

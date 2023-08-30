@@ -1,9 +1,13 @@
 import { PaginateSort, PaginateOrder, FSProject, FSType } from "../local_storage/index.d";
 import { create_button } from "../popups";
 import { create_input_group, popup_input } from "../popups/inputs";
-import { moment } from "../popups/toasts";
+import { create_toast, moment } from "../popups/toasts";
 import LocalStorage from '../local_storage';
 import { log } from '../log';
+import { del_prog_prompt } from "./prompts/del_prog";
+import App from "..";
+import Line from "../line";
+import { StageUseType } from "../index.d";
 
 export interface SearchBar {
     sort: PaginateSort;
@@ -197,6 +201,7 @@ export const create_pagination_bar = (
  * @name add_items_to_list
  * Adds items to a list
  * 
+ * @param {() => void} close_callback - The callback function to call when the popup closes
  * @param {Array<FSProject>} items - The items to add to the list
  * @param {number} per_page - The amount of items per page
  * @param {FSType} type - The type of the search menu
@@ -206,6 +211,7 @@ export const create_pagination_bar = (
  * @returns {void}
  */
 export const add_items_to_list = (
+    close_callback: () => void,
     items: Array<FSProject>,
     per_page: number,
     type: FSType,
@@ -215,10 +221,10 @@ export const add_items_to_list = (
     // -- Clear the list
     list.innerHTML = '';
 
-    const load_btn = `<button popup-button='INFO' class='list-item-action'>Open</button>`,
-        use_btn = `<button popup-button='SUCCESS' class='list-item-action'>Use</button>`,
-        delete_btn = `<button popup-button='ERROR' class='list-item-action'>Delete</button>`,
-        list_btn = `${load_btn}${delete_btn}`;
+    const raw_load_btn = `<button popup-button='INFO' id='open-${type}' class='list-item-action'>Open</button>`,
+        raw_use_btn = `<button popup-button='SUCCESS' id='use-${type}' class='list-item-action'>Use</button>`,
+        raw_delete_btn = `<button popup-button='ERROR' id='delete-${type}' class='list-item-action'>Delete</button>`,
+        list_btns = `${raw_load_btn}${raw_delete_btn}`;
 
 
     // -- Add all the items to the list
@@ -240,12 +246,63 @@ export const add_items_to_list = (
                 <p class='list-item-updated'>Last updated ${moment(updated)}.</p>
             </div>
             <div class='list-item-actions' popup-section='buttons'>
-                ${mode === 'load' ? load_btn : ''}  
-                ${mode === 'use' ? use_btn : ''}
-                ${mode === 'list' ? list_btn : ''}  
+                ${mode === 'load' ? raw_load_btn : ''}  
+                ${mode === 'use' ? raw_use_btn : ''}
+                ${mode === 'list' ? list_btns : ''}  
             </div>
         `;
         list.appendChild(item_elm);
+
+
+
+        // -- Add the event listeners
+        const open_btn = item_elm.querySelector(`#open-${type}`) as HTMLButtonElement,
+            use_btn = item_elm.querySelector(`#use-${type}`) as HTMLButtonElement,
+            delete_btn = item_elm.querySelector(`#delete-${type}`) as HTMLButtonElement;
+
+
+
+        if (open_btn) open_btn.addEventListener('click', () => 
+            del_prog_prompt(() => {
+
+                // -- Load the project
+                const lsi = LocalStorage.get_instance(),
+                    serialized_data = lsi.get_serialized_project(item.name);
+
+                // -- Make sure the project exists
+                if (!serialized_data) {
+                    log('ERROR', 'Failed to load the project');
+                    create_toast('error', 'Project loader', 'Failed to load the project');
+                    return;
+                }
+
+                // -- Clear the current project
+                const app_instance = App.get_instance();
+                app_instance.destroy();
+
+                // -- Deserialize the lines
+                const x_line = Line.deserialize(serialized_data.x_line, app_instance.layer);
+                const y_line = Line.deserialize(serialized_data.y_line, app_instance.layer);
+
+                // -- Set the lines
+                const load_type = type as StageUseType;
+                app_instance.set_x_line(x_line);
+                app_instance.set_y_line(y_line);
+                app_instance.stage_identifier = item.name;
+                app_instance.stage_use_type = load_type;
+
+                // -- Close the popup
+                app_instance.redraw();
+                close_callback();
+            },
+            () => {},
+        ));
+
+        if (use_btn) use_btn.addEventListener('click', () => {
+        });
+
+        if (delete_btn) delete_btn.addEventListener('click', () => {
+        });
     }
 
 
@@ -279,12 +336,14 @@ export const add_items_to_list = (
  * 
  * @param {FSType} type - The type of the search menu
  * @param {'load' | 'use' | 'list'} mode - The mode of the search menu
+ * @param {() => void} close_callback - The callback function to call when the popup closes
  * 
  * @returns {HTMLDivElement} The search menu
  */
 export const create_search_menu = (
     type: FSType,
     mode: 'load' | 'use' | 'list',
+    close_callback: () => void,
 ): HTMLDivElement => {
     // -- Get the metadata refresh function
     const metadata_refresh = () => {
@@ -355,7 +414,7 @@ export const create_search_menu = (
         // -- Update the pagination bar
         pagination.set_page_amount(total_pages);
         pagination.set_page(page + 1);
-        add_items_to_list(results, page_size, type, mode, content);
+        add_items_to_list(close_callback, results, page_size, type, mode, content);
     };
 
     // -- Refresh the list

@@ -12,26 +12,11 @@ import Shortcuts from './shortcuts';
 import { load_tools } from './tools';
 import FSLocalStorage from './local_storage';
 
-
-// -- Stage
-const si = Shortcuts.get_instance();
-const ls = FSLocalStorage.get_instance();
-
 let [width, height] = get_client_size();
 export const _stage = new konva.Stage({
     container: 'canvas-container',
     width, height,
 });
-
-// -- Main Layer
-export const _layer = new konva.Layer();
-_stage.add(_layer);
-
-init_zoom();
-si.reset_shortcuts();
-assign_actions();
-load_tools();
-init_menu();
 
 
 // -- App debug text
@@ -89,8 +74,28 @@ export default class App {
     private _stage_identifier: string = null;
     private _stage_use_type: StageUseType = 'project';
 
+    private _stage: konva.Stage = null;
+    private _layer: konva.Layer = null;
+
+    // -- Stage
+    private _si = Shortcuts.get_instance();
+    private _ls = FSLocalStorage.get_instance();
+
     private constructor() {
         this._update_app_debug();
+        this._stage = _stage;
+        this._layer = new konva.Layer();
+        this._stage.add(this._layer);
+
+        init_zoom();
+
+        assign_actions();
+        load_tools();
+        init_menu();
+
+        this._si.reset_shortcuts();
+
+        handle_controlls(_stage);
     }
 
     /**
@@ -103,6 +108,24 @@ export default class App {
         if (!_app_instance) _app_instance = new App();
         return _app_instance;
     }
+
+
+    
+    /**
+     * @name reset_layer
+     * Resets the layer to its default state, removing
+     * all listeners and children
+     * 
+     * @returns {void}
+     */
+    public reset_layer(): void {
+        // -- Destroy the layer
+        this._layer.destroy();
+        delete this._layer;
+        this._layer = new konva.Layer();
+        this._stage.add(this._layer);
+    }
+
 
     
 
@@ -119,7 +142,7 @@ export default class App {
             this._x_line.destroy();
             delete this._x_line;
         }
-        
+
         if (this._y_line) {
             this._y_line.destroy();
             delete this._y_line;
@@ -133,6 +156,9 @@ export default class App {
         this._stage_identifier = null;
         this._stage_use_type = 'project';
 
+        // -- Reset the layer
+        this.reset_layer();
+        
         // -- Update the app debug
         this._update_app_debug();
     }
@@ -208,6 +234,17 @@ export default class App {
     }
 
 
+
+    /**
+     * @name redraw
+     * Redraws the line if possible
+     */
+    public redraw(): void {
+        if (this._x_line) render_line(this._x_line);
+        if (this._y_line) render_line(this._y_line);
+    }
+
+
     get stage_identifier(): string { return this._stage_identifier; }
     set stage_identifier(id: string) { 
         this._stage_identifier = id; 
@@ -219,26 +256,10 @@ export default class App {
         this._stage_use_type = type; 
         this._update_app_debug();
     }
+
+    get layer(): konva.Layer { return this._layer; }
 }
 
 
 // -- Create the first instance of the app
 export const _app = App.get_instance();
-
-// -- Defualt the x and y lines
-const _x_line = new Line(_layer, x_config);
-const _y_line = new Line(_layer, y_config);
-
-// -- Set the x and y lines
-_app.set_x_line(_x_line);
-_app.set_y_line(_y_line);
-
-// -- Render the lines
-render_line(_x_line);
-render_line(_y_line);
-
-
-
-// draw_grid(x_line, true, true);
-// draw_grid(y_line, true, false);
-handle_controlls(_stage);

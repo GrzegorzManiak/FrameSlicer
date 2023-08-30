@@ -1,7 +1,6 @@
 import { log } from '../log';
 import Shortcuts from '../shortcuts';
-import { ToolState } from './index.d';
-import { add_listeners, get_active_tool, get_tools, set_state } from './loader';
+import { add_listeners, get_tools, set_state } from './loader';
 
 
 /**

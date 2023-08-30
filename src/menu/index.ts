@@ -5,6 +5,7 @@ import { Shortcut } from '../shortcuts/index.d';
 import { export_menu_prompt } from './prompts/export_project';
 import { about_menu_prompt } from './prompts/help';
 import { import_menu_prompt } from './prompts/import_project';
+import { list_patterns } from './prompts/list_patterns';
 import { list_projects } from './prompts/list_projects';
 import { new_pattern_menu_prompt } from './prompts/new_pattern';
 import { save_project_menu_prompt } from './prompts/save_project';
@@ -31,11 +32,18 @@ export const assign_actions = () => {
     // -- Add the shortcut
     si.assign_action('file-export', export_menu_prompt);
     si.assign_action('file-import', import_menu_prompt);
-    si.assign_action('help-about', about_menu_prompt);
-    si.assign_action('pattern-new', new_pattern_menu_prompt);
+    si.assign_action('file-list', () => list_projects('Saved projects', 'list'));
+    si.assign_action('file-load', () => list_projects('Load saved project', 'load'));
 
-    si.assign_action('file-list', list_projects);
-    list_projects();
+    si.assign_action('help-about', about_menu_prompt);
+
+    si.assign_action('pattern-new', new_pattern_menu_prompt);
+    si.assign_action('pattern-list', () => list_patterns('Saved patterns', 'list'));
+    si.assign_action('pattern-load', () => list_patterns('Load saved pattern', 'load'));
+    si.assign_action('pattern-use', () => list_patterns('Use saved pattern', 'use'));
+
+
+
 
     // -- THe save shortcut is a bit different, as it needs to be
     //    used by multiple systems such as Projects and Patterns

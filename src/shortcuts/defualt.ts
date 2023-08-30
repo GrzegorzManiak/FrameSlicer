@@ -71,22 +71,29 @@ export default [
 
     // -- Pattern menu shortcuts
     {
-        id: 'pattern-load',
-        clean: 'Load',
-        group: 'Pattern',
-        key: ['control', 'p', 'l', 'o'],
-    },
-    {
         id: 'pattern-new',
         clean: 'New',
         group: 'Pattern',
         key: ['control', 'p', 'm'],
     },
     {
+        id: 'pattern-load',
+        clean: 'Load',
+        group: 'Pattern',
+        key: ['control', 'p', 'l', 'o'],
+    },
+    {
         id: 'pattern-list',
         clean: 'List',
         group: 'Pattern',
         key: ['control', 'p', 'j'],
+    },
+    {
+        id: 'pattern-use',
+        clean: 'Use',
+        group: 'Pattern',
+        break: 'before',
+        key: ['control', 'p', 'u'],
     },
 
     

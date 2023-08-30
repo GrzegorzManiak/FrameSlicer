@@ -4,12 +4,12 @@ import { create_search_menu } from '../item_list';
 let open = false;
 
 /**
- * @name list_projects
- * Lists all the projects that are saved locally
+ * @name list_patterns
+ * Lists all the patterns that are saved locally
  * 
  * @returns {void}
  */
-export const list_projects = (
+export const list_patterns = (
     title: string,
     mode: 'load' | 'use' | 'list'
 ) => {
@@ -20,7 +20,7 @@ export const list_projects = (
 
 
     // -- Create the content
-    const search_box = create_search_menu('project', mode);
+    const search_box = create_search_menu('x_pattern', mode);
     
     // -- Create the popup
     const prompt = create_popup({

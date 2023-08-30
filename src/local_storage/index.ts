@@ -2,7 +2,8 @@ import { validate_line_config } from "../config_validation";
 import Line from "../line";
 import { log } from "../log";
 import { create_toast } from "../popups/toasts";
-import { AData, FSProject, ProjectData } from "./index.d";
+import { AData, FSProject, FSType, PaginateOrder, PaginateSort, ProjectData } from "./index.d";
+import Fuse from 'fuse.js';
 
 let _instance: FSLocalStorage | null = null;
 export default class FSLocalStorage {
@@ -20,20 +21,24 @@ export default class FSLocalStorage {
      */
     private _project_key: string = 'fls-project';
     private _project_data_key: string = 'fls-project-data';
-    private _project_metadata: Array<FSProject> = [];
+    public _project_metadata: Array<FSProject> = [];
 
     private _y_pattern_key: string = 'fls-y-pattern';
     private _y_pattern_data_key: string = 'fls-y-pattern-data';
-    private _y_pattern_metadata: Array<FSProject> = [];
+    public _y_pattern_metadata: Array<FSProject> = [];
 
     private _x_pattern_key: string = 'fls-x-pattern';
     private _x_pattern_data_key: string = 'fls-x-pattern-data';
-    private _x_pattern_metadata: Array<FSProject> = [];
+    public _x_pattern_metadata: Array<FSProject> = [];
 
     private _MAX_SIZE: number = 5000000; // -- 5mb
     private _WARN_SIZE: number = 4000000; // -- 4mb
     private _ls_lock: boolean = false;  
 
+    private _fuse_index = Fuse.createIndex([], []);
+    private _fuse_instance = new Fuse([], {}, this._fuse_index);
+
+    private _fuse_synced = false;
     
 
     // -- Private constructor to prevent multiple instances
@@ -77,7 +82,135 @@ export default class FSLocalStorage {
         this.get_x_patterns_metadata();
         this.get_y_patterns_metadata();
 
+        // -- Update the fuse index
+        this._update_fuse_index();
+
         log('INFO', 'Local storage instance created');
+    }
+
+
+
+    /**
+     * @name _update_fuse_index
+     * Internal function to update the fuse index
+     * 
+     * @returns {void} nothing
+     */
+    private _update_fuse_index(
+    ): void {
+        // -- Check if the fuse index is synced
+        log('INFO', 'Updating fuse index');
+        if (this._fuse_synced) {
+            log('INFO', 'Fuse index already synced');
+            return;
+        };
+
+        // -- Get the projects
+        const projects = [
+            ...this._project_metadata,
+            ...this._x_pattern_metadata,
+            ...this._y_pattern_metadata,
+        ];
+
+        // -- Update the fuse index
+        this._fuse_index = Fuse.createIndex(
+            ['name'],
+            projects
+        );
+
+        // -- Update the fuse instance
+        this._fuse_instance = new Fuse(
+            projects,
+            {
+                keys: ['name'],
+                shouldSort: true,
+                threshold: 0.6,
+                location: 0,
+                distance: 100,
+                minMatchCharLength: 1,
+                includeScore: true,
+                includeMatches: true,
+            },
+            this._fuse_index
+        );
+
+        // -- Set the fuse synced to true
+        this._fuse_synced = true;
+        log('INFO', 'Fuse index updated');
+    }
+
+
+
+    /**
+     * @name search
+     * Internal function to search the fuse index
+     * 
+     * @param {string} query - The query to search for
+     * @param {FSType} [type='project'] - The type of project to search for
+     * @param {number} [limit=5] - The limit of results to return
+     * @param {number} [page=0] - The page of results to return
+     * @param {PaginateOrder} [order='name'] - The order to sort the results by
+     * @param {PaginateSort} [sort='asc'] - The sort to sort the results by
+     * 
+     * @returns {FSProject[]} - The results
+     */
+    public search(
+        query: string,
+        type: FSType = 'project',
+        limit: number = 5,
+        page: number = 0,
+        order: PaginateOrder = 'name',
+        sort: PaginateSort = 'asc',
+    ): {
+        results: FSProject[],
+        total_pages: number,
+    } {
+        // -- Update the fuse index
+        this._update_fuse_index();
+
+        // -- Search the fuse index
+        const results = this._fuse_instance.search(query);
+        
+
+        // -- Sort the results
+        results.sort((a, b) => {
+            // -- Get the values to compare
+            let a_value = a.score, b_value = b.score;
+            if (order === 'created') { a_value = a.item.created; b_value = b.item.created; }
+            else if (order === 'updated') { a_value = a.item.updated; b_value = b.item.updated; }
+
+            
+            // -- Check if the values are equal
+            if (a_value === b_value) return 0;
+
+            
+            // -- Check if the order is ascending
+            if (sort === 'asc') {
+                if (a_value < b_value) return 1;
+                else return -1;
+            }
+
+            // -- Else the order is descending
+            if (a_value > b_value) return 1;
+            else return -1;
+        });
+
+
+        let processed_results: FSProject[] = [];
+        for (let result of results) {
+            // -- Make sure the type is correct
+            if (result.item.type !== type) continue;
+            processed_results.push(result.item);
+        }
+
+        // -- Paginate the results 
+        processed_results = processed_results.slice(page * limit, page * limit + limit);
+
+        // -- Return the results
+        return {
+            results: processed_results,
+            total_pages: Math.ceil(results.length / limit),
+        };
     }
 
 
@@ -354,6 +487,7 @@ export default class FSLocalStorage {
         // -- Get the projects metadata
         const projects = this.get_fsprojects(this._project_key);
         this._project_metadata = projects;
+        this._fuse_synced = false;
         return projects;
     }
         
@@ -371,6 +505,7 @@ export default class FSLocalStorage {
         // -- Get the x patterns metadata
         const projects = this.get_fsprojects(this._x_pattern_key);
         this._x_pattern_metadata = projects;
+        this._fuse_synced = false;
         return projects;
     }
 
@@ -388,6 +523,7 @@ export default class FSLocalStorage {
         // -- Get the y patterns metadata
         const projects = this.get_fsprojects(this._y_pattern_key);
         this._y_pattern_metadata = projects;
+        this._fuse_synced = false;
         return projects;
     }
 
@@ -417,6 +553,7 @@ export default class FSLocalStorage {
         // -- Save the projects
         localStorage.setItem(this._project_key, JSON.stringify(projects));
         localStorage.setItem(data_key, JSON.stringify(data));
+        this._fuse_synced = false;
     }
 
 
@@ -449,6 +586,7 @@ export default class FSLocalStorage {
         // -- Save the projects
         localStorage.setItem(this._project_key, JSON.stringify(projects));
         localStorage.setItem(data_key, JSON.stringify(data));
+        this._fuse_synced = false;
     }
 
 

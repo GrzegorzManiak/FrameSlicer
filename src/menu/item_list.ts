@@ -382,7 +382,6 @@ export const create_search_menu = (
         if (q.query.length === 0) {
             results = metadata_refresh();
             const res_len = results.length;
-            console.log(res_len);
 
             // -- Paginate and sort the results
             results = results.slice(page * page_size, page * page_size + page_size);

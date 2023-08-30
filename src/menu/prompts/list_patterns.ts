@@ -1,3 +1,4 @@
+import { log } from '../../log';
 import { create_popup } from '../../popups';
 import { create_search_menu } from '../item_list';
 
@@ -20,8 +21,12 @@ export const list_patterns = (
 
 
     // -- Create the content
-    let close: () => void = () => {};
-    const search_box = create_search_menu('x_pattern', mode, close);
+    let close: () => void;
+    const search_box = create_search_menu('x_pattern', mode, () => {
+        log('INFO', 'x_pattern search menu closed');
+        if (close) close();
+        else log('ERROR', 'Failed to close x_pattern search menu');
+    });
     
     // -- Create the popup
     const prompt = create_popup({

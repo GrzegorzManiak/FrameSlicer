@@ -316,3 +316,118 @@ popup [disabled] * {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+[search] > div {
+    width: var(--search-box-width);
+}
+
+[search] .search-bar > :first-child {
+    width: 65%;
+}
+
+[search] .search-bar > :nth-child(2) {
+    width: 3rem;
+}
+
+[search] .search-bar > :last-child {
+    width: 3rem;
+}
+
+.list-item [popup-section='buttons'] {
+    border-top: 0px solid!important;
+}
+
+.no-found {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: var(--box-radius);
+    background-color: var(--input-color);
+    color: #ffffff;
+}
+
+.pagination-bar-middle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.pagination-bar-middle > div {
+    margin: 0;    
+    padding: 0;
+}
+
+.pagination-bar-middle > div div {
+    display: none!important;
+}
+
+.pagination-bar-middle > p {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--greyed-out-font-color);
+}
+
+.list-projects {
+    display: flex;
+    flex-direction: column;
+    color: #ffffff;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    flex-grow: 1;
+    gap: 0.5rem;
+}
+
+.list-item {
+    padding-bottom: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: default!important;
+}
+
+.list-item-icon {
+    width: 5rem;
+    background-color: var(--input-color);
+    border-radius: var(--box-radius);
+    padding: 0.5rem;
+    height: auto;
+}
+
+.list-item-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.list-item-dates {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.list-item-dates p {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--greyed-out-font-color);
+}
+
+.list-projects > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: solid 1.5px #ffffff25;
+    cursor: pointer;
+    width: 100%;
+}

@@ -161,21 +161,29 @@ export function moment(date: Date): string {
     // -- Get the time difference in milliseconds
     const diff = (Date.now() - date.getTime()) / 1000;
 
+    const SECOND = 1000;
+    const MINUTE = 60 * SECOND;
+    const HOUR = 60 * MINUTE;
+    const DAY = 24 * HOUR;
+    const WEEK = 7 * DAY;
+    const MONTH = 30 * DAY;
+
+
     // -- Define the thresholds for different time intervals
     const thresholds = [
-        { threshold: 0, label: 'Just now' }, // -- 1 second
-        { threshold: 60 * 1000, label: 'A few seconds ago' }, // -- 1 minute
-        { threshold: 60 * 60 * 1000, label: 'A few minutes ago' }, // -- 1 hour
-        // -- Im not using the below two thresholds, but i added them anyway
-        //    As i MIGHT use them for something else later
-        { threshold: 24 * 60 * 60 * 1000, label: 'A few hours ago' }, // -- 1 day
-        { threshold: 7 * 24 * 60 * 60 * 1000, label: 'A few days ago' }, // -- 1 week
-        { threshold: Infinity, label: 'A while ago' }, // -- 1 week
+        { threshold: 0, label: 'Just now' },
+        { threshold: 1 * SECOND, label: 'a few seconds ago' },
+        { threshold: 1 * MINUTE, label: 'a few minutes ago' },
+        { threshold: 1 * HOUR, label: 'a few hours ago' },
+        { threshold: 1 * DAY, label: 'a few days ago' },
+        { threshold: 1 * WEEK, label: 'a few weeks ago' },
+        { threshold: 1 * MONTH, label: 'a few months ago' },
     ];
 
     // -- Find the first threshold that the time difference is less than or equal to
-    const { label } =
-        thresholds.find(({ threshold }) => diff <= threshold) ||
-        thresholds[thresholds.length - 1];
+    const { label } = thresholds.find(({ threshold }) => diff <= threshold) || {
+        label: 'A while ago',
+    };
+
     return label;
 }

@@ -27,3 +27,6 @@ export type ProjectData = {
 };
 
 export type FSType = 'project' | 'x_pattern' | 'y_pattern';
+
+export type PaginateSort = 'asc' | 'desc';
+export type PaginateOrder = 'created' | 'updated' | 'name';

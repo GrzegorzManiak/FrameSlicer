@@ -24,6 +24,7 @@ export interface Popup {
 }
 
 export interface PopupReturns {
+    main_elm: HTMLElement;
     close: () => void;
     lock_button: (state: boolean, name: string) => void;
 }

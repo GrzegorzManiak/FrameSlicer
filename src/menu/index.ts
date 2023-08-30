@@ -5,6 +5,7 @@ import { Shortcut } from '../shortcuts/index.d';
 import { export_menu_prompt } from './prompts/export_project';
 import { about_menu_prompt } from './prompts/help';
 import { import_menu_prompt } from './prompts/import_project';
+import { list_projects } from './prompts/list_projects';
 import { new_pattern_menu_prompt } from './prompts/new_pattern';
 import { save_project_menu_prompt } from './prompts/save_project';
 
@@ -33,6 +34,8 @@ export const assign_actions = () => {
     si.assign_action('help-about', about_menu_prompt);
     si.assign_action('pattern-new', new_pattern_menu_prompt);
 
+    si.assign_action('file-list', list_projects);
+    list_projects();
 
     // -- THe save shortcut is a bit different, as it needs to be
     //    used by multiple systems such as Projects and Patterns

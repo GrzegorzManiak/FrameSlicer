@@ -1,0 +1,232 @@
+import { PaginateSort, PaginateOrder, FSProject } from "../local_storage/index.d";
+import { create_button } from "../popups";
+import { create_input_group, popup_input } from "../popups/inputs";
+import { moment } from "../popups/toasts";
+
+export interface SearchBar {
+    sort: PaginateSort;
+    order: PaginateOrder;
+    query: string;
+}
+
+/**
+ * @name create_search_bar
+ * Creates a search bar, sort dropdown and an order dropdown
+ * 
+ * @param {() => SearchBar} callback - The callback function to call when the search bar changes
+ */
+export const create_search_bar = (
+    callback: (search: SearchBar) => void,
+) => {
+
+    // -- Size inputs
+    const size_group = create_input_group();
+    size_group.classList.add('search-bar');
+
+    let sort: PaginateSort = 'asc';
+    let order: PaginateOrder = 'name';   
+    let query: string = '';
+
+    const search_input = popup_input<string>('Search', '', 'Query', 'text'),
+        input_elm = search_input.querySelector('input') as HTMLInputElement;
+
+    // -- Search input that waits for the user to stop typing
+    //    before sending the query as the search query might
+    //    be expensive
+    let last_change = 0, completed = false;
+    const search_timeout = 250;
+    search_input.addEventListener('input', (e) => {
+        completed = false;
+        last_change = Date.now();
+        const recheck = () => setTimeout(() => {
+            if (completed) return;
+            if (Date.now() - last_change <= search_timeout) 
+                return recheck();
+            query = input_elm.value;
+            callback({ sort, order, query });
+            completed = true;
+        }, search_timeout);
+        recheck();
+    });
+
+    // -- Append the inputs
+    size_group.appendChild(search_input);
+    size_group.appendChild(popup_input<PaginateSort>('Sort', '', ['Asc', 'Desc'], 'dropdown', (v) => {  
+        sort = v.toLowerCase() as PaginateSort;
+        callback({ sort, order, query });
+    }));
+    size_group.appendChild(popup_input<PaginateOrder>('Order', '', ['Name', 'Created', 'Updated'], 'dropdown', (v) => { 
+        order = v.toLowerCase() as PaginateOrder;
+        callback({ sort, order, query });
+    }));
+    
+    // -- Return the search bar
+    return size_group;
+};
+
+
+
+/**
+ * @name create_pagination_bar
+ * Creates a pagination bar
+ * 
+ * @param {(page: number) => void} callback - The callback function to call when the page changes
+ * @param {number} page_amount - The amount of pages
+ * 
+ * @returns {{
+ *  element: HTMLDivElement,
+ *  set_page: (page: number) => void,
+ *  set_page_amount: (amount: number) => void,
+ * }} The pagination bar
+ */
+export const create_pagination_bar = (
+    callback: (page: number) => void,
+    page_amount: number = 1,
+    page: number = 1,
+): {
+    element: HTMLDivElement,
+    set_page: (page: number) => void,
+    set_page_amount: (amount: number) => void,
+} => {
+
+
+    // -- Create the pagination bar
+    const pagination_bar = create_input_group();
+    pagination_bar.classList.add('pagination-bar');
+    pagination_bar.setAttribute('popup-section', 'buttons');
+
+    // -- The 'Out of' text
+    const out_of = document.createElement('p');
+    out_of.innerText = 'out of ' + page_amount;
+    out_of.classList.add('pagination-bar-out-of');
+
+
+
+    // -- Create the page input
+    const page_input = popup_input<number>('', '', '1', 'number', (v) => {
+        if (v < 1) v = 1;
+        if (v > page_amount) v = page_amount;
+        page = v;
+        out_of.innerText = `out of ${page_amount}`;
+        callback(v);
+    });
+
+    // -- Get the page input element
+    const page_input_elm = page_input.querySelector('input') as HTMLInputElement;
+
+
+
+    // -- Previous / Next buttons
+    const previous_button = create_button({
+        id: 'previous', text: '', type: 'INFO',
+        callback: () => {
+            if (page - 1 < 1) return;
+            page--;
+            page_input_elm.value = page.toString();
+            out_of.innerText = `out of ${page_amount}`;
+            callback(page);
+        }
+    });
+
+    const next_button = create_button({
+        id: 'next', text: '', type: 'INFO',
+        callback: () => {
+            if (page + 1 > page_amount) return;
+            page++;
+            page_input_elm.value = page.toString();
+            out_of.innerText = `out of ${page_amount}`;
+            callback(page);
+        }
+    });
+
+
+    // -- Set the previous / next buttons text to icons
+    previous_button.innerHTML = `<i class="fas fa-chevron-left"></i>`;
+    next_button.innerHTML = `<i class="fas fa-chevron-right"></i>`;
+
+
+    // -- Create the middle div which contains the page input and 
+    //    the 'out of' text
+    const middle = document.createElement('div');
+    middle.classList.add('pagination-bar-middle');
+    middle.appendChild(page_input);
+    middle.appendChild(out_of);
+
+
+    // -- Append the inputs
+    pagination_bar.appendChild(previous_button);
+    pagination_bar.appendChild(middle);
+    pagination_bar.appendChild(next_button);
+
+
+
+    // -- Return the pagination bar controller
+    return {
+        element: pagination_bar,
+        set_page: (new_page: number) => {
+            page_input_elm.value = new_page.toString();
+            out_of.innerText = `out of ${page_amount}`;
+            page = new_page;
+        },
+        set_page_amount: (amount: number) => {
+            page_amount = amount;
+            out_of.innerText = `out of ${page_amount}`;
+        }
+    }
+}
+
+
+
+/**
+ * @name add_items_to_list
+ * Adds items to a list
+ * 
+ * @param {Array<FSProject>} items - The items to add to the list
+ * @param {HTMLDivElement} list - The list to add the items to
+ * 
+ * @returns {void}
+ */
+export const add_items_to_list = (
+    items: Array<FSProject>,
+    list: HTMLDivElement,
+): void => {
+    // -- Clear the list
+    list.innerHTML = '';
+
+    // -- Add all the items to the list
+    for (const item of items) {
+        // -- Format the dates
+        const created = new Date(item.created),
+            updated = new Date(item.updated);
+
+        // -- We just want the date, DD/MM/YYYY
+        const created_formated = `${created.getDate()}/${created.getMonth()}/${created.getFullYear()}`;
+
+        const item_elm = document.createElement('div');
+        item_elm.classList.add('list-item');
+        item_elm.innerHTML = `
+            <div class='list-item-icon'>
+                <img src='' />
+            </div>
+            <p class='list-item-title'>${item.name}</p>
+            <div class='list-item-dates'>
+                <p class='list-item-created'>Created on ${created_formated},</p>
+                <p class='list-item-updated'>Last updated ${moment(updated)}.</p>
+            </div>
+            <div class='list-item-actions' popup-section='buttons'>
+                <button popup-button='INFO' class='list-item-action'>Open</button>
+                <button popup-button='ERROR' class='list-item-action'>Delete</button>
+            </div>
+        `;
+        list.appendChild(item_elm);
+    }
+
+    // -- Check if theres no items  
+    if (items.length > 0) return;
+
+    // -- If there are no items, add a no items found message
+    const item_elm = document.createElement('div');
+    item_elm.classList.add('list-item');
+    item_elm.innerHTML = `<p class='list-item-title no-found'>No items found.</p>`;
+    list.appendChild(item_elm);
+};

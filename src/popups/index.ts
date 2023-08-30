@@ -12,7 +12,7 @@ if (!popup_container) {
 
 
 
-const create_button = (
+export const create_button = (
     cfg: PopupButton
 ): HTMLElement => {
     const button = document.createElement('button');
@@ -135,6 +135,7 @@ export const create_popup = (
 
     // -- Create the returnable
     const pr: PopupReturns =  {
+        main_elm: popup_element,
         close: () => closed = true,
         lock_button: (state: boolean, id: string) => {
             const btn = Array.from(popup_element.querySelectorAll(`[btn-id="${id}"]`));

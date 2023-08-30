@@ -49,24 +49,24 @@ module.exports = {
             },
             mangle: true,
         }})],
-        // splitChunks: {
-        //     chunks: 'all',
-        //     minSize: 0,
-        //     maxAsyncRequests: Infinity,
-        //     maxInitialRequests: Infinity,
-        //     cacheGroups: {
-        //         vendor: {
-        //             test: /[\\/]node_modules[\\/]/,
-        //             name(module) {
-        //                 const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
-        //                 return `npm.${packageName.replace('@', '')}`;
-        //             },
-        //             chunks: 'all',
-        //             enforce: true,
-        //         },
-        //     },
-        // },
-        // runtimeChunk: true,
+        splitChunks: {
+            chunks: 'all',
+            minSize: 0,
+            maxAsyncRequests: Infinity,
+            maxInitialRequests: Infinity,
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name(module) {
+                        const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+                        return `npm.${packageName.replace('@', '')}`;
+                    },
+                    chunks: 'all',
+                    enforce: true,
+                },
+            },
+        },
+        runtimeChunk: true,
         removeAvailableModules: false,
         removeEmptyChunks: false,
     },
@@ -92,7 +92,7 @@ module.exports = {
             });
 
             // -- Return the filename
-            return `[name].js`;
+            return `${name}-${randomString}.js`;
         },
         sourceMapFilename: '[name].js.map',
         path: path.resolve(__dirname, './webpack_bundles'),

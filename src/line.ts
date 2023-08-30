@@ -1138,7 +1138,7 @@ export default class Line {
 
 
 
-    public _resize_listener_func: () => void;
+    public _resize_listener_func: (() => void | null);
 
     /**
      * @name _resize_listener
@@ -1155,20 +1155,7 @@ export default class Line {
         line: Line,
         wait: number = 100
     ): void {   
-
-        // -- This is a way to reduce the amount of resize events
-        //    that we have to process, it will wait for the user
-        //    to stop resizing the window before executing the function
-        let resize_timeout;
-        line._resize_listener_func = () => {
-            if (resize_timeout) clearTimeout(resize_timeout);
-            resize_timeout = setTimeout(() => resize, wait);
-        };
-
-        window.addEventListener('resize', () => {
-            if (line._resize_listener_func)
-            line._resize_listener_func();
-        });
+        log('INFO', 'Adding resize listener to the line');
 
 
         // -- Function responsible for resizing the line
@@ -1232,5 +1219,26 @@ export default class Line {
             // -- Render the line
             render_line(line);
         };
+
+
+        // -- This is a way to reduce the amount of resize events
+        //    that we have to process, it will wait for the user
+        //    to stop resizing the window before executing the function
+        let resize_timeout;
+        line._resize_listener_func = () => {
+            if (resize_timeout) clearTimeout(resize_timeout);
+            resize_timeout = setTimeout(() => {
+                log('INFO', 'Resizing the line');
+                resize();
+            }, wait);
+        };
+
+        window.addEventListener('resize', () => {
+            if (line._resize_listener_func)
+            line._resize_listener_func();
+            else log('WARN', 'Resize func is not set');
+        });
+
+        log('INFO', `Resize func set: ${line._resize_listener_func !== null}`);
     }
 }

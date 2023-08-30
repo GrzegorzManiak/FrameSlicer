@@ -398,6 +398,11 @@ popup [disabled] * {
     cursor: default!important;
 }
 
+.list-item-filler {
+    flex-grow: 1;
+    height: 3rem;
+}
+
 .list-item-icon {
     width: 5rem;
     background-color: var(--input-color);

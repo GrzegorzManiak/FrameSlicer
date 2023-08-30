@@ -198,6 +198,7 @@ export const create_pagination_bar = (
  * Adds items to a list
  * 
  * @param {Array<FSProject>} items - The items to add to the list
+ * @param {number} per_page - The amount of items per page
  * @param {FSType} type - The type of the search menu
  * @param {'load' | 'edit' | 'list'} mode - The mode of the search menu
  * @param {HTMLDivElement} list - The list to add the items to
@@ -206,6 +207,7 @@ export const create_pagination_bar = (
  */
 export const add_items_to_list = (
     items: Array<FSProject>,
+    per_page: number,
     type: FSType,
     mode: 'load' | 'use' | 'list',
     list: HTMLDivElement,
@@ -246,8 +248,21 @@ export const add_items_to_list = (
         list.appendChild(item_elm);
     }
 
+
+    // -- Create fillers if theres less than x 
+    //    items per page    
+    const fillers = per_page - items.length;
+    for (let i = 0; i < fillers; i++) {
+        const item_elm = document.createElement('div');
+        item_elm.classList.add('list-item');
+        item_elm.classList.add('list-item-filler');
+        list.appendChild(item_elm);
+    }
+
+    
     // -- Check if theres no items  
     if (items.length > 0) return;
+
 
     // -- If there are no items, add a no items found message
     const item_elm = document.createElement('div');
@@ -340,7 +355,7 @@ export const create_search_menu = (
         // -- Update the pagination bar
         pagination.set_page_amount(total_pages);
         pagination.set_page(page + 1);
-        add_items_to_list(results, type, mode, content);
+        add_items_to_list(results, page_size, type, mode, content);
     };
 
     // -- Refresh the list

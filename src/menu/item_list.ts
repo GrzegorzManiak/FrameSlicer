@@ -9,15 +9,18 @@ export interface SearchBar {
     sort: PaginateSort;
     order: PaginateOrder;
     query: string;
+    type: FSType;
 }
 
 /**
  * @name create_search_bar
  * Creates a search bar, sort dropdown and an order dropdown
  * 
+ * @param {FSType} type - The type of the search menu
  * @param {() => SearchBar} callback - The callback function to call when the search bar changes
  */
 export const create_search_bar = (
+    type: FSType,
     callback: (search: SearchBar) => void,
 ) => {
 
@@ -45,7 +48,7 @@ export const create_search_bar = (
             if (Date.now() - last_change <= search_timeout) 
                 return recheck();
             query = input_elm.value;
-            callback({ sort, order, query });
+            callback({ sort, order, query, type });
             completed = true;
         }, search_timeout);
         recheck();
@@ -55,12 +58,21 @@ export const create_search_bar = (
     size_group.appendChild(search_input);
     size_group.appendChild(popup_input<PaginateSort>('Sort', '', ['Asc', 'Desc'], 'dropdown', (v) => {  
         sort = v.toLowerCase() as PaginateSort;
-        callback({ sort, order, query });
+        callback({ sort, order, query, type });
     }));
     size_group.appendChild(popup_input<PaginateOrder>('Order', '', ['Name', 'Created', 'Updated'], 'dropdown', (v) => { 
         order = v.toLowerCase() as PaginateOrder;
-        callback({ sort, order, query });
+        callback({ sort, order, query, type });
     }));
+
+    // -- Check if this is a pattern search menu
+    if (type === 'x_pattern' || type === 'y_pattern') { 
+        size_group.appendChild(popup_input<string>('Type', '', ['X Axis', 'Y Axis'], 'dropdown', (v) => { 
+            if (v === 'X Axis') type = 'x_pattern';
+            else type = 'y_pattern';
+            callback({ sort, order, query, type });
+        }));
+    }
     
     // -- Return the search bar
     return size_group;
@@ -72,6 +84,7 @@ export const create_search_bar = (
  * @name create_pagination_bar
  * Creates a pagination bar
  * 
+ * @param {FSType} type - The type of the search menu
  * @param {(page: number) => void} callback - The callback function to call when the page changes
  * @param {number} page_amount - The amount of pages
  * 
@@ -82,6 +95,7 @@ export const create_search_bar = (
  * }} The pagination bar
  */
 export const create_pagination_bar = (
+    type: FSType,   
     callback: (page: number) => void,
     page_amount: number = 1,
     page: number = 1,
@@ -249,7 +263,7 @@ export const add_items_to_list = (
  * Creates a search menu
  * 
  * @param {FSType} type - The type of the search menu
- * @param {'load' | 'edit' | 'list'} mode - The mode of the search menu
+ * @param {'load' | 'use' | 'list'} mode - The mode of the search menu
  * 
  * @returns {HTMLDivElement} The search menu
  */
@@ -273,13 +287,13 @@ export const create_search_menu = (
 
     // -- Variables to store the search bar data
     let page = 0, page_size = 5, total_pages = 1, last_q: SearchBar | null = null,
-        q: SearchBar = { sort: 'asc', order: 'name', query: '' }; 
+        q: SearchBar = { sort: 'asc', order: 'name', query: '', type }; 
 
     // -- Create the search menu 
-    const search = create_search_bar((q_n) => { 
+    const search = create_search_bar(type, (q_n) => { 
         q = q_n; if(refresh) refresh();});
 
-    const pagination = create_pagination_bar((new_page) => { 
+    const pagination = create_pagination_bar(type, (new_page) => { 
         page = new_page - 1; if(refresh) refresh();}, total_pages, page);
 
 

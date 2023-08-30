@@ -322,15 +322,21 @@ popup [disabled] * {
 }
 
 [search] .search-bar > :first-child {
-    width: 65%;
 }
 
 [search] .search-bar > :nth-child(2) {
-    width: 3rem;
+    width: 3.5rem;
+    flex-grow: 0;
+}
+
+[search] .search-bar > :nth-child(3) {
+    width: 3.5rem;
+    flex-grow: 0;
 }
 
 [search] .search-bar > :last-child {
-    width: 3rem;
+    width: 3.5rem;
+    flex-grow: 0;
 }
 
 .list-item [popup-section='buttons'] {

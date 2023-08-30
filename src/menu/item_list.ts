@@ -184,26 +184,34 @@ export const create_pagination_bar = (
  * Adds items to a list
  * 
  * @param {Array<FSProject>} items - The items to add to the list
+ * @param {FSType} type - The type of the search menu
+ * @param {'load' | 'edit' | 'list'} mode - The mode of the search menu
  * @param {HTMLDivElement} list - The list to add the items to
  * 
  * @returns {void}
  */
 export const add_items_to_list = (
     items: Array<FSProject>,
+    type: FSType,
+    mode: 'load' | 'use' | 'list',
     list: HTMLDivElement,
 ): void => {
     // -- Clear the list
     list.innerHTML = '';
 
+    const load_btn = `<button popup-button='INFO' class='list-item-action'>Open</button>`,
+        use_btn = `<button popup-button='SUCCESS' class='list-item-action'>Use</button>`,
+        delete_btn = `<button popup-button='ERROR' class='list-item-action'>Delete</button>`,
+        list_btn = `${load_btn}${delete_btn}`;
+
+
     // -- Add all the items to the list
     for (const item of items) {
         // -- Format the dates
-        const created = new Date(item.created),
-            updated = new Date(item.updated);
+        const created = new Date(item.created), updated = new Date(item.updated),
+            created_formated = `${created.getDate()}/${created.getMonth()}/${created.getFullYear()}`;
 
-        // -- We just want the date, DD/MM/YYYY
-        const created_formated = `${created.getDate()}/${created.getMonth()}/${created.getFullYear()}`;
-
+        // -- Create the item element   
         const item_elm = document.createElement('div');
         item_elm.classList.add('list-item');
         item_elm.innerHTML = `
@@ -216,8 +224,9 @@ export const add_items_to_list = (
                 <p class='list-item-updated'>Last updated ${moment(updated)}.</p>
             </div>
             <div class='list-item-actions' popup-section='buttons'>
-                <button popup-button='INFO' class='list-item-action'>Open</button>
-                <button popup-button='ERROR' class='list-item-action'>Delete</button>
+                ${mode === 'load' ? load_btn : ''}  
+                ${mode === 'use' ? use_btn : ''}
+                ${mode === 'list' ? list_btn : ''}  
             </div>
         `;
         list.appendChild(item_elm);
@@ -246,7 +255,7 @@ export const add_items_to_list = (
  */
 export const create_search_menu = (
     type: FSType,
-    mode: 'load' | 'edit' | 'list',
+    mode: 'load' | 'use' | 'list',
 ): HTMLDivElement => {
     // -- Get the metadata refresh function
     const metadata_refresh = () => {
@@ -258,30 +267,34 @@ export const create_search_menu = (
     }
 
 
-
     // -- Create the content
     let results = [], content = create_input_group();
-    const lsi = LocalStorage.get_instance();
     content.classList.add('list-projects');
 
     // -- Variables to store the search bar data
     let page = 0, page_size = 5, total_pages = 1, last_q: SearchBar | null = null,
         q: SearchBar = { sort: 'asc', order: 'name', query: '' }; 
 
-        
     // -- Create the search menu 
-    const search = create_search_bar((q_n) => { q = q_n; if(refresh) refresh();});
-    const pagination = create_pagination_bar((new_page) => { page = new_page - 1; if(refresh) refresh();}, total_pages, page);
+    const search = create_search_bar((q_n) => { 
+        q = q_n; if(refresh) refresh();});
 
+    const pagination = create_pagination_bar((new_page) => { 
+        page = new_page - 1; if(refresh) refresh();}, total_pages, page);
 
 
     // -- Get all the projects
+    const lsi = LocalStorage.get_instance();
     const refresh = () => {
+        log('INFO', 'Refreshing the list of projects', {
+            page, page_size, ...q
+        });
 
         // -- If the query is empty, get all the projects
         if (q.query.length === 0) {
             results = metadata_refresh();
             const res_len = results.length;
+            console.log(res_len);
 
             // -- Paginate and sort the results
             results = results.slice(page * page_size, page * page_size + page_size);
@@ -313,10 +326,8 @@ export const create_search_menu = (
         // -- Update the pagination bar
         pagination.set_page_amount(total_pages);
         pagination.set_page(page + 1);
-        add_items_to_list(results, content);
+        add_items_to_list(results, type, mode, content);
     };
-
-
 
     // -- Refresh the list
     refresh();

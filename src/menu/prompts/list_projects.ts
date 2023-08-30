@@ -1,8 +1,5 @@
 import { create_popup } from '../../popups';
-import { create_input_group, popup_input } from '../../popups/inputs';
-import { SearchBar, add_items_to_list, create_pagination_bar, create_search_bar, create_search_menu } from '../item_list';
-import LocalStorage from '../../local_storage';
-import { log } from '../../log';
+import { create_search_menu } from '../item_list';
 
 let open = false;
 

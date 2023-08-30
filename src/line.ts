@@ -200,10 +200,6 @@ export default class Line {
         this._layer.off('mousemove');
         this._layer.off('mousedown');
 
-        // -- Window resize listener
-        if (this._resize_listener_func) window.removeEventListener(
-            'resize', this._resize_listener_func);
-
         this._line.destroy();
         this._path.destroy();
         this._handle.destroy();
@@ -1233,11 +1229,6 @@ export default class Line {
             }, wait);
         };
 
-        window.addEventListener('resize', () => {
-            if (line._resize_listener_func)
-            line._resize_listener_func();
-            else log('WARN', 'Resize func is not set');
-        });
 
         log('INFO', `Resize func set: ${line._resize_listener_func !== null}`);
     }

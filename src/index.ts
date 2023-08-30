@@ -77,6 +77,8 @@ export default class App {
     private _stage: konva.Stage = null;
     private _layer: konva.Layer = null;
 
+    private _window_resize_listeners: Array<() => void> = [];
+
     // -- Stage
     private _si = Shortcuts.get_instance();
     private _ls = FSLocalStorage.get_instance();
@@ -94,8 +96,13 @@ export default class App {
         init_menu();
 
         this._si.reset_shortcuts();
-
         handle_controlls(_stage);
+        this._resize_listener();
+    }
+
+    private _resize_listener() {
+        window.addEventListener('resize', () => this._window_resize_listeners.forEach(
+            (listener) => listener()));
     }
 
     /**
@@ -159,6 +166,9 @@ export default class App {
         // -- Reset the layer
         this.reset_layer();
         
+        // -- Remove the listeners
+        this._window_resize_listeners = [];
+
         // -- Update the app debug
         this._update_app_debug();
     }
@@ -194,6 +204,7 @@ export default class App {
     public set_x_line(line: Line | null): void { 
         this._x_line = line; 
         this._update_app_debug();
+        this._window_resize_listeners.push(line._resize_listener_func)
     }
 
     /**
@@ -207,6 +218,7 @@ export default class App {
     public set_y_line(line: Line | null): void { 
         this._y_line = line; 
         this._update_app_debug();
+        this._window_resize_listeners.push(line._resize_listener_func)
     }
 
 

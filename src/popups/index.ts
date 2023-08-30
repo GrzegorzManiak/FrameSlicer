@@ -151,8 +151,11 @@ export const create_popup = (
 
         // -- Else close the popup
         popup_element.setAttribute('anim', 'out');
-        popup_element.addEventListener('animationend', () => 
-        popup_container.removeChild(popup_element));
+        popup_element.addEventListener('animationend', () => {
+            // -- Ensure the popup is still open
+            if (!popup_element.parentNode) return;
+            popup_container.removeChild(popup_element);
+        });
         log('INFO', 'Popup closed');
         popup.on_close?.(pr);
 

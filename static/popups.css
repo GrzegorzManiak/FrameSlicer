@@ -6,6 +6,7 @@
     height: 100%;
     pointer-events: none;
     z-index: 1000;
+    --anim-length: 1s;
 }
 
 @keyframes popup-fadein {
@@ -29,8 +30,8 @@ popup {
     pointer-events: all;
 }
 
-popup[anim='in'] { animation: popup-fadein 1s forwards; }
-popup[anim='out'] { animation: popup-fadeout 1s forwards; }
+popup[anim='in'] { animation: popup-fadein var(--anim-length) forwards; }
+popup[anim='out'] { animation: popup-fadeout var(--anim-length) forwards; }
 
 @keyframes popup-slidein {
     0% { transform: translateY(-100vh); }
@@ -51,8 +52,8 @@ popup > div {
     color: #ffffff;
 }
 
-popup[anim='in'] > div { animation: popup-slidein 1.5s ease forwards; }
-popup[anim='out'] > div { animation: popup-slideout 1.5s ease forwards; }
+popup[anim='in'] > div { animation: popup-slidein var(--anim-length) ease forwards; }
+popup[anim='out'] > div { animation: popup-slideout var(--anim-length) ease forwards; }
 
 [popup-section='header'] {
     display: flex;

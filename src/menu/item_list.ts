@@ -1,7 +1,9 @@
-import { PaginateSort, PaginateOrder, FSProject } from "../local_storage/index.d";
+import { PaginateSort, PaginateOrder, FSProject, FSType } from "../local_storage/index.d";
 import { create_button } from "../popups";
 import { create_input_group, popup_input } from "../popups/inputs";
 import { moment } from "../popups/toasts";
+import LocalStorage from '../local_storage';
+import { log } from '../log';
 
 export interface SearchBar {
     sort: PaginateSort;
@@ -229,4 +231,102 @@ export const add_items_to_list = (
     item_elm.classList.add('list-item');
     item_elm.innerHTML = `<p class='list-item-title no-found'>No items found.</p>`;
     list.appendChild(item_elm);
+};
+
+
+
+/**
+ * @name create_search_menu
+ * Creates a search menu
+ * 
+ * @param {FSType} type - The type of the search menu
+ * @param {'load' | 'edit' | 'list'} mode - The mode of the search menu
+ * 
+ * @returns {HTMLDivElement} The search menu
+ */
+export const create_search_menu = (
+    type: FSType,
+    mode: 'load' | 'edit' | 'list',
+): HTMLDivElement => {
+    // -- Get the metadata refresh function
+    const metadata_refresh = () => {
+        switch (type) {
+            case 'project': return LocalStorage.get_instance()._project_metadata;
+            case 'x_pattern': return LocalStorage.get_instance()._x_pattern_metadata;
+            case 'y_pattern': return LocalStorage.get_instance()._y_pattern_metadata;
+        }
+    }
+
+
+
+    // -- Create the content
+    let results = [], content = create_input_group();
+    const lsi = LocalStorage.get_instance();
+    content.classList.add('list-projects');
+
+    // -- Variables to store the search bar data
+    let page = 0, page_size = 5, total_pages = 1, last_q: SearchBar | null = null,
+        q: SearchBar = { sort: 'asc', order: 'name', query: '' }; 
+
+        
+    // -- Create the search menu 
+    const search = create_search_bar((q_n) => { q = q_n; if(refresh) refresh();});
+    const pagination = create_pagination_bar((new_page) => { page = new_page - 1; if(refresh) refresh();}, total_pages, page);
+
+
+
+    // -- Get all the projects
+    const refresh = () => {
+
+        // -- If the query is empty, get all the projects
+        if (q.query.length === 0) {
+            results = metadata_refresh();
+            const res_len = results.length;
+
+            // -- Paginate and sort the results
+            results = results.slice(page * page_size, page * page_size + page_size);
+            results = results.sort((a, b) => {
+                if (q.sort === 'asc') return a[q.order] > b[q.order] ? 1 : -1;
+                else return a[q.order] < b[q.order] ? 1 : -1;
+            });
+
+            // -- Update the variables
+            total_pages = Math.ceil(res_len / page_size);
+            pagination.set_page_amount(total_pages);
+        }
+
+        else {
+            // -- If the query is not empty, search for the projects
+            const raw_results = lsi.search(
+                q.query, type, page_size, page, q.order, q.sort);
+
+            // -- Update the variables
+            results = raw_results.results;
+            total_pages = raw_results.total_pages;
+        }
+
+
+
+        // -- Add the results to the list
+        if (last_q !== q) { page = 0; last_q = q; }
+
+        // -- Update the pagination bar
+        pagination.set_page_amount(total_pages);
+        pagination.set_page(page + 1);
+        add_items_to_list(results, content);
+    };
+
+
+
+    // -- Refresh the list
+    refresh();
+
+    // -- Add the content to the popup
+    const main_parent = document.createElement('div');
+    main_parent.appendChild(search);
+    main_parent.appendChild(content);
+    main_parent.appendChild(pagination.element);
+
+    // -- Return the content
+    return main_parent;
 };

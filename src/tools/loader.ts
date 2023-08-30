@@ -78,6 +78,7 @@ export const add_listeners = (
 
     // -- Loop trough thr tools
     tools.forEach((tool) => {
+
         // -- click
         tool.elem.addEventListener('click', () => {
             // -- Get the index of this tool
@@ -158,8 +159,25 @@ export const append_listener = (
 export const exceute_listeners = (
     tool: ToolObject = get_active_tool()
 ) => {
-    _callbacks.forEach((callback) => callback(tool));
+    // -- Array to store the valid callbacks
+    let valid_callbacks: Array<(tool: ToolObject) => void> = [];
+
+    // -- Loop trough all the callbacks
+    _callbacks.forEach((callback) => {
+        try {
+            callback(tool);
+            valid_callbacks.push(callback);
+        }
+
+        catch {
+            log('WARN', 'Callback not found, removing');
+        }
+    });
+
+    // -- Remove all the invalid callbacks
+    _callbacks = valid_callbacks;
 };
+
 
 
 /**

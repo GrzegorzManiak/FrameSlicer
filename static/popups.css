@@ -97,7 +97,6 @@ popup[anim='out'] > div { animation: popup-slideout var(--anim-length) ease forw
 [popup-section='content'] p {
     margin: 0;
     font-size: 1rem;
-    font-weight: 500;
     user-select: none;
 }
 
@@ -442,4 +441,19 @@ popup [disabled] * {
     border-bottom: solid 1.5px #ffffff25;
     cursor: pointer;
     width: 100%;
+}
+
+.popup-video {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 1rem;
+}
+
+.popup-video iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--box-radius);
 }

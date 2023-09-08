@@ -1,5 +1,6 @@
 import { log } from '../../log';
-import { create_popup } from '../../popups';
+import { create } from '../../popups/popups';
+
 import { create_input_group, popup_input } from '../../popups/inputs';
 import { create_toast } from '../../popups/toasts';
 
@@ -21,7 +22,7 @@ export const new_pattern_menu_prompt = (): void => {
 
 
     // -- Create the popup
-    const popup = create_popup({
+    const popup = create({
         title: 'New Pattern',
         message: `Create a new pattern, this will overwrite your current project, any unsaved changes will be lost.`,
         buttons: [{ 

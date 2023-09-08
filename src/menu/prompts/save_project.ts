@@ -1,4 +1,5 @@
-import { create_popup } from '../../popups';
+import { create } from '../../popups/popups';
+
 import { create_input_group, popup_input } from '../../popups/inputs';
 import LocalStorage from '../../local_storage';
 import { create_toast } from '../../popups/toasts';
@@ -84,7 +85,7 @@ export const save_project_menu_prompt = () => {
 
     
     // -- Create the popup if there is no id
-    const prompt = create_popup({
+    const prompt = create({
         title: 'Save Project',
         message: 'Would you like to save your current project?',
         buttons: [{ 

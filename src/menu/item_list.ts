@@ -1,5 +1,5 @@
 import { PaginateSort, PaginateOrder, FSProject, FSType } from "../local_storage/index.d";
-import { create_button } from "../popups";
+import { create_button } from "../popups/popups";
 import { create_input_group, popup_input } from "../popups/inputs";
 import { create_toast, moment } from "../popups/toasts";
 import LocalStorage from '../local_storage';

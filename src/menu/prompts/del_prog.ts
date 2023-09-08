@@ -1,4 +1,4 @@
-import { create_popup } from '../../popups';
+import { create } from '../../popups/popups';
 import { create_input_group, popup_input } from '../../popups/inputs';
 
 let open = false;
@@ -20,7 +20,7 @@ export const del_prog_prompt = (
     open = true;
     
     // -- Create the popup
-    create_popup({
+    create({
         title: 'Continue?',
         message: `
             Are you sure you want continue? This will delete any unsaved work.

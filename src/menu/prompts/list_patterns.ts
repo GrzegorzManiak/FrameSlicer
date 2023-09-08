@@ -1,5 +1,6 @@
 import { log } from '../../log';
-import { create_popup } from '../../popups';
+import { create } from '../../popups/popups';
+
 import { create_search_menu } from '../item_list';
 
 let open = false;
@@ -29,7 +30,7 @@ export const list_patterns = (
     });
     
     // -- Create the popup
-    const prompt = create_popup({
+    const prompt = create({
         title: title,
         message: '',
         buttons: [],

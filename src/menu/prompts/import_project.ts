@@ -1,5 +1,6 @@
 import { log } from '../../log';
-import { create_popup } from '../../popups';
+import { create } from '../../popups/popups';
+
 import { create_input_group, popup_input } from '../../popups/inputs';
 import { create_toast } from '../../popups/toasts';
 
@@ -69,7 +70,7 @@ export const import_menu_prompt = () => {
     open = true;
     
     // -- Create the popup
-    const prompt = create_popup({
+    const prompt = create({
         title: 'Import',
         message: 'Import a .fse file, this will overwrite your current project, any unsaved changes will be lost.',
         buttons: [{ 

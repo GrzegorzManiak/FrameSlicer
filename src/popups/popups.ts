@@ -1,4 +1,4 @@
-import { Popup, PopupButton, PopupReturns } from './index.d';
+import { Popup, PopupButton, PopupReturns } from '.';
 import { log } from '../log';
 
 
@@ -37,7 +37,7 @@ export const create_button = (
 
 
 
-const create_popup_element = (
+const create_element = (
     popup: Popup,
     element: HTMLElement = null
 ): HTMLElement => {
@@ -98,7 +98,7 @@ const create_popup_element = (
 
 
 /**
- * @name create_popup
+ * @name create
  * Creates a popup box given a Popup object
  * 
  * @param {Popup} popup - The popup object
@@ -107,13 +107,13 @@ const create_popup_element = (
  * 
  * @returns {PopupReturns} A function to close the popup
  */
-export const create_popup = (
+export const create = (
     popup: Popup,
     element: HTMLElement = null,
     timeout: number = 4000
 ): PopupReturns => {
     log('INFO', 'Creating popup');
-    const popup_element = create_popup_element(popup, element);
+    const popup_element = create_element(popup, element);
     popup_container.appendChild(popup_element);
     let closed = false;
 

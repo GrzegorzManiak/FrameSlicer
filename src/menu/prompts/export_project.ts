@@ -1,4 +1,5 @@
-import { create_popup } from '../../popups';
+import { create } from '../../popups/popups';
+
 import { create_input_group, popup_input } from '../../popups/inputs';
 
 let open = false;
@@ -31,7 +32,7 @@ export const export_menu_prompt = () => {
     ));
 
     // -- Create the popup
-    const prompt = create_popup({
+    const prompt = create({
         title: 'Export',
         message: 'Would you like to export your current project as a .fse file? You can import it later.',
         buttons: [{ 

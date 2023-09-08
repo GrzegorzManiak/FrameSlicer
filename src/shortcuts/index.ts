@@ -456,6 +456,12 @@ export default class Shortcuts {
                 e.shiftKey &&
                 e.key === 'R'
             ) return true;
+
+            // -- Allow Ctrl + A / C / V
+            else if (
+                e.ctrlKey &&
+                ['A', 'C', 'V'].includes(e.key)
+            ) return true;
             
             // -- If its a modifier key, prevent default
             else if (
@@ -463,8 +469,10 @@ export default class Shortcuts {
                 e.shiftKey || 
                 e.altKey
             ) return false;
-            
-            else return true;
+
+            // -- On enter, allow default
+            else if (e.key === 'Enter') return true;
+            return true;
         };
 
 
